@@ -42,6 +42,7 @@ return {
       ensure_installed = {
         'html',
         'cssls',
+        'svelte',
         'lua_ls',
         'emmet_ls',
         'basedpyright',
@@ -56,12 +57,13 @@ return {
     mason_tool_installer.setup {
       ensure_installed = {
         'prettier', -- prettier formatter
+        '',
         'stylua', -- lua formatter
         'isort', -- python formatter
         'black', -- python formatter
         'rustfmt', -- rust formatter
         'clang-format',
-        -- "goimports",
+        'goimports',
         'shfmt', -- shell formatter
         'google-java-format',
         'pylint',
