@@ -7,8 +7,9 @@ return {
   config = function()
     -- here until they work with mason
     -- require("lspconfig").gopls.setup({})
-    require('lspconfig').java_language_server.setup {}
-    require('lspconfig').gopls.setup {
+    local lspconfig = require 'lspconfig'
+    lspconfig.java_language_server.setup {}
+    lspconfig.gopls.setup {
       settings = {
         gopls = {
           format = {
@@ -26,6 +27,7 @@ return {
     local mason_lspconfig = require 'mason-lspconfig'
 
     local mason_tool_installer = require 'mason-tool-installer'
+
     -- enable mason and configure icons
     mason.setup {
       ui = {
@@ -38,7 +40,6 @@ return {
     }
 
     mason_lspconfig.setup {
-      -- list of servers for mason to install
       ensure_installed = {
         'html',
         'cssls',
@@ -57,18 +58,23 @@ return {
     mason_tool_installer.setup {
       ensure_installed = {
         'prettier', -- prettier formatter
-        '',
         'stylua', -- lua formatter
-        'isort', -- python formatter
-        'black', -- python formatter
         'rustfmt', -- rust formatter
         'clang-format',
         'goimports',
         'shfmt', -- shell formatter
         'google-java-format',
-        'pylint',
+        'ruff',
         'eslint_d',
       },
     }
+
+    if lspconfig.basedpyright then
+      lspconfig.basedpyright.setup {
+        on_attach = function(client)
+          client:stop()
+        end,
+      }
+    end
   end,
 }

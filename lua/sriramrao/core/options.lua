@@ -39,3 +39,18 @@ opt.signcolumn = 'yes'
 vim.g.have_nerd_font = true
 
 opt.scrolloff = 10
+
+vim.diagnostic.config {
+  virtual_text = {
+    spacing = 2,
+    prefix = '', -- or "" if you want it super clean
+    severity = {
+      min = vim.diagnostic.severity.ERROR,
+      max = vim.diagnostic.severity.ERROR,
+    },
+  },
+  signs = true, -- shows signs in gutter
+  underline = true, -- you're already seeing this
+  update_in_insert = false,
+  severity_sort = true,
+}

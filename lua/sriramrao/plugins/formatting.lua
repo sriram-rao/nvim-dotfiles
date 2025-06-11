@@ -28,7 +28,7 @@ return {
       graphql = { 'prettier' },
       liquid = { 'prettier' },
       lua = { 'stylua', command = 'stylua --config-path ~/.config/nvim/stylua.toml' },
-      python = { 'isort', 'black' },
+      python = { 'ruff' },
     },
   },
   keys = {
