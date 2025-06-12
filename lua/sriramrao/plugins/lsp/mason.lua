@@ -1,9 +1,9 @@
 return {
-  'williamboman/mason.nvim',
-  dependencies = {
-    'williamboman/mason-lspconfig.nvim',
-    'WhoIsSethDaniel/mason-tool-installer.nvim',
-  },
+  'williamboman/mason-lspconfig.nvim',
+  dependencies = { {
+    'williamboman/mason.nvim',
+    config = true,
+  }, 'WhoIsSethDaniel/mason-tool-installer.nvim' },
   config = function()
     -- here until they work with mason
     -- require("lspconfig").gopls.setup({})
@@ -46,7 +46,7 @@ return {
         'svelte',
         'lua_ls',
         'emmet_ls',
-        'basedpyright',
+        'ruff',
         'markdown_oxide',
         'rust_analyzer',
         'jsonls',
