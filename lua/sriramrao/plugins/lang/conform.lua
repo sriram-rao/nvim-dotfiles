@@ -27,42 +27,14 @@ return {
       markdown = { 'prettier' },
       graphql = { 'prettier' },
       liquid = { 'prettier' },
-      lua = { 'stylua', command = 'stylua --config-path ~/.config/nvim/stylua.toml' },
+      lua = {
+        'stylua',
+        command = 'stylua --config-path ~/.config/nvim/stylua.toml',
+      },
       python = { 'ruff' },
     },
   },
-  keys = {
-    {
-      '<leader>tf',
-      function()
-        -- If autoformat is currently disabled for this buffer,
-        -- then enable it, otherwise disable it
-        if vim.b.disable_autoformat then
-          vim.cmd 'FormatEnable'
-          vim.notify 'Enabled autoformat for current buffer'
-        else
-          vim.cmd 'FormatDisable!'
-          vim.notify 'Disabled autoformat for current buffer'
-        end
-      end,
-      desc = 'Toggle autoformat for current buffer',
-    },
-    {
-      '<leader>tF',
-      function()
-        -- If autoformat is currently disabled globally,
-        -- then enable it globally, otherwise disable it globally
-        if vim.g.disable_autoformat then
-          vim.cmd 'FormatEnable'
-          vim.notify 'Enabled autoformat globally'
-        else
-          vim.cmd 'FormatDisable'
-          vim.notify 'Disabled autoformat globally'
-        end
-      end,
-      desc = 'Toggle autoformat globally',
-    },
-  },
+  keys = {},
   config = function(_, opts)
     local conform = require 'conform'
     require('conform').setup(opts)
@@ -87,12 +59,17 @@ return {
       desc = 'Re-enable autoformat-on-save',
     })
 
-    vim.keymap.set({ 'n', 'v' }, '<leader>mp', function()
-      conform.format {
-        lsp_fallback = true,
-        async = false,
-        timeout_ms = 1000,
-      }
-    end, { desc = 'Format file or range (in visual mode)' })
+    vim.keymap.set(
+      { 'n', 'v' },
+      '<leader>tf',
+      function()
+        conform.format {
+          lsp_fallback = true,
+          async = false,
+          timeout_ms = 1000,
+        }
+      end,
+      { desc = 'Format file or range (in visual mode)' }
+    )
   end,
 }

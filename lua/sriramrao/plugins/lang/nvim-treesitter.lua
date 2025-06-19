@@ -47,10 +47,10 @@ return {
       incremental_selection = {
         enable = true,
         keymaps = {
-          init_selection = '<C-space>',
-          node_incremental = '<C-space>',
+          init_selection = 'vni',
+          node_incremental = 'vni',
           scope_incremental = false,
-          node_decremental = '<bs>',
+          node_decremental = 'vnd',
         },
       },
     }

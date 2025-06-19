@@ -22,9 +22,7 @@ return {
       ensure_installed = { 'cppdbg', 'python' },
       automatic_installation = true,
       handlers = {
-        function(config)
-          require('mason-nvim-dap').default_setup(config)
-        end,
+        function(config) require('mason-nvim-dap').default_setup(config) end,
       },
     }
 
@@ -36,7 +34,11 @@ return {
           type = 'cppdbg',
           request = 'launch',
           program = function()
-            return vim.fn.input('Path to executable: ', vim.fn.getcwd() .. '/', 'file')
+            return vim.fn.input(
+              'Path to executable: ',
+              vim.fn.getcwd() .. '/',
+              'file'
+            )
           end,
           cwd = '${workspaceFolder}',
           stopAtEntry = false,
@@ -51,7 +53,11 @@ return {
           miDebuggerPath = '/usr/bin/lldb',
           cwd = '${workspaceFolder}',
           program = function()
-            return vim.fn.input('Path to executable: ', vim.fn.getcwd() .. '/', 'file')
+            return vim.fn.input(
+              'Path to executable: ',
+              vim.fn.getcwd() .. '/',
+              'file'
+            )
           end,
         },
       },
@@ -88,17 +94,9 @@ return {
 
     vim.fn.sign_define('DapBreakpoint', { text = '🔴' })
 
-    dap.listeners.before.attach.dapui_config = function()
-      ui.open()
-    end
-    dap.listeners.before.launch.dapui_config = function()
-      ui.open()
-    end
-    dap.listeners.before.event_terminated.dapui_config = function()
-      ui.close()
-    end
-    dap.listeners.before.event_exited.dapui_config = function()
-      ui.close()
-    end
+    dap.listeners.before.attach.dapui_config = function() ui.open() end
+    dap.listeners.before.launch.dapui_config = function() ui.open() end
+    dap.listeners.before.event_terminated.dapui_config = function() ui.close() end
+    dap.listeners.before.event_exited.dapui_config = function() ui.close() end
   end,
 }

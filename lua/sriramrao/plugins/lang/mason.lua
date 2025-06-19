@@ -1,9 +1,12 @@
 return {
   'williamboman/mason-lspconfig.nvim',
-  dependencies = { {
-    'williamboman/mason.nvim',
-    config = true,
-  }, 'WhoIsSethDaniel/mason-tool-installer.nvim' },
+  dependencies = {
+    {
+      'williamboman/mason.nvim',
+      config = true,
+    },
+    'WhoIsSethDaniel/mason-tool-installer.nvim',
+  },
   config = function()
     -- here until they work with mason
     -- require("lspconfig").gopls.setup({})
@@ -61,7 +64,7 @@ return {
         'stylua', -- lua formatter
         'rustfmt', -- rust formatter
         'clang-format',
-        'goimports',
+        -- 'goimports',
         'shfmt', -- shell formatter
         'google-java-format',
         'ruff',
@@ -71,9 +74,7 @@ return {
 
     if lspconfig.basedpyright then
       lspconfig.basedpyright.setup {
-        on_attach = function(client)
-          client:stop()
-        end,
+        on_attach = function(client) client:stop() end,
       }
     end
   end,
