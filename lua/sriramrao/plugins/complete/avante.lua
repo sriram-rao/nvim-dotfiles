@@ -35,33 +35,7 @@ return {
     },
     -- Split-based UI: separators are styled via colorscheme config
   },
-  init = function()
-    -- Ensure the Avante split shows visible separators
-    local grp = vim.api.nvim_create_augroup('AvanteBorders', { clear = true })
-    vim.api.nvim_create_autocmd('FileType', {
-      group = grp,
-      pattern = { 'Avante', 'avante' },
-      callback = function()
-        local win = 0
-        local val = vim.wo[win].winhighlight or ''
-        -- Remove any mapping that could hide separators
-        val = val:gsub('WinSeparator:[^,]*,?', '')
-        val = val:gsub('VertSplit:[^,]*,?', '')
-        if #val > 0 then val = val:gsub('^,+', ''):gsub(',+$', '') end
-        if #val > 0 then val = val .. ',' end
-        -- Ensure default groups are used so theme/global color applies
-        vim.wo[win].winhighlight = val .. 'WinSeparator:WinSeparator,VertSplit:VertSplit'
-        -- Ensure Avante window uses thin separator char
-        local f = vim.wo[win].fillchars or ''
-        if not f:match('vert:') then
-          f = (#f > 0 and (f .. ',') or f) .. 'vert:┊'
-        else
-          f = f:gsub('vert:[^,]*', 'vert:┊')
-        end
-        vim.wo[win].fillchars = f
-      end,
-    })
-  end,
+  -- No Avante-only separator handling; global separators module manages all panes
   dependencies = {
     'nvim-lua/plenary.nvim',
     'MunifTanjim/nui.nvim',
