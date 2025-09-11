@@ -43,6 +43,10 @@ return {
         'vimdoc',
         'python',
         'c',
+        'elixir',
+        'heex',
+        'eex',
+        'swift',
       },
       incremental_selection = {
         enable = true,

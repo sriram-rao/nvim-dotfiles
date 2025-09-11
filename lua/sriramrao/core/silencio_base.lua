@@ -1,11 +1,9 @@
 Hidden_diags = {}
 
 local function get_project_root()
-  local clients = vim.lsp.get_active_clients { bufnr = 0 }
+  local clients = vim.lsp.get_clients { bufnr = 0 }
   for _, client in ipairs(clients) do
-    if client.config.root_dir then
-      return client.config.root_dir
-    end
+    if client.config.root_dir then return client.config.root_dir end
   end
   return vim.fn.getcwd()
 end
@@ -21,9 +19,7 @@ local function load_ignores()
     local content = f:read '*a'
     f:close()
     local ok, data = pcall(vim.fn.json_decode, content)
-    if ok and type(data) == 'table' then
-      Hidden_diags = data
-    end
+    if ok and type(data) == 'table' then Hidden_diags = data end
   end
 end
 
@@ -55,7 +51,13 @@ local function select_diagnostic_under_cursor(callback)
 
   for _, d in ipairs(vim.diagnostic.get(bufnr)) do
     local s, e = get_diagnostic_range(d)
-    if s and e and s.line == line and s.character <= col and col <= e.character then
+    if
+      s
+      and e
+      and s.line == line
+      and s.character <= col
+      and col <= e.character
+    then
       local lsp = d.user_data and d.user_data.lsp or d
       if lsp.code then
         table.insert(choices, {
@@ -74,13 +76,9 @@ local function select_diagnostic_under_cursor(callback)
 
   vim.ui.select(choices, {
     prompt = 'Ignore which diagnostic code?',
-    format_item = function(item)
-      return item.label
-    end,
+    format_item = function(item) return item.label end,
   }, function(choice)
-    if choice then
-      callback(choice.code)
-    end
+    if choice then callback(choice.code) end
   end)
 end
 
@@ -97,9 +95,16 @@ vim.keymap.set('n', '<leader>si', function()
 
   for _, d in ipairs(vim.diagnostic.get(bufnr)) do
     local s, e = get_diagnostic_range(d)
-    if s and e and s.line == line and s.character <= col and col <= e.character then
+    if
+      s
+      and e
+      and s.line == line
+      and s.character <= col
+      and col <= e.character
+    then
       local uri = vim.uri_from_bufnr(bufnr)
-      local pos_key = string.format('%d:%d:%d:%d', s.line, s.character, e.line, e.character)
+      local pos_key =
+        string.format('%d:%d:%d:%d', s.line, s.character, e.line, e.character)
 
       Hidden_diags[uri] = Hidden_diags[uri] or {}
       Hidden_diags[uri][pos_key] = true
@@ -139,10 +144,13 @@ vim.keymap.set('n', '<leader>sC', function()
   end)
 end)
 
-vim.lsp.handlers['textDocument/publishDiagnostics'] = function(_, result, ctx, config)
-  if not result then
-    return
-  end
+vim.lsp.handlers['textDocument/publishDiagnostics'] = function(
+  _,
+  result,
+  ctx,
+  config
+)
+  if not result then return end
 
   local uri = result.uri
   local file_ignores = Hidden_diags[uri] or {}
@@ -156,7 +164,8 @@ vim.lsp.handlers['textDocument/publishDiagnostics'] = function(_, result, ctx, c
     end
     local s, e = get_diagnostic_range(d)
     if s and e then
-      local pos_key = string.format('%d:%d:%d:%d', s.line, s.character, e.line, e.character)
+      local pos_key =
+        string.format('%d:%d:%d:%d', s.line, s.character, e.line, e.character)
       return not file_ignores[pos_key]
     end
     return true

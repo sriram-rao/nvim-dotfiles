@@ -1,5 +1,24 @@
 return {
   'stevearc/aerial.nvim',
+  keys = {
+    {
+      '<leader>aa',
+      '<cmd>AerialToggle!<CR>',
+      desc = 'Aerial toggle',
+    },
+    {
+      '<leader>ap',
+      function()
+        require('aerial').snacks_picker {
+          layout = {
+            preset = 'dropdown',
+            preview = false,
+          },
+        }
+      end,
+      desc = 'Aerial picker',
+    },
+  },
   -- Optional dependencies
   dependencies = {
     'nvim-treesitter/nvim-treesitter',
@@ -8,37 +27,10 @@ return {
   config = function()
     require('aerial').setup {
       backends = { 'treesitter', 'lsp', 'markdown' },
+      lazy_load = true, -- load aerial only when needed
       -- optionally use on_attach to set keymaps when aerial has attached to a buffer
-      on_attach = function(bufnr)
-        -- Jump forwards/backwards with '{' and '}'
-        vim.keymap.set(
-          'n',
-          '[a',
-          '<cmd>AerialPrev<CR>',
-          { buffer = bufnr, desc = 'Aerial: previous symbol' }
-        )
-        vim.keymap.set(
-          'n',
-          ']a',
-          '<cmd>AerialNext<CR>',
-          { buffer = bufnr, desc = 'Aerial: next symbol' }
-        )
-      end,
     }
     -- You probably also want to set a keymap to toggle aerial
-    vim.keymap.set(
-      'n',
-      '<leader>a',
-      '<cmd>AerialToggle!<CR>',
-      { desc = 'Toggle aerial' }
-    )
-
-    require('aerial').snacks_picker {
-      layout = {
-        preset = 'dropdown',
-        preview = false,
-      },
-    }
     require('telescope').setup {
       extensions = {
         aerial = {

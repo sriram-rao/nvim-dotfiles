@@ -32,6 +32,7 @@ return {
         command = 'stylua --config-path ~/.config/nvim/stylua.toml',
       },
       python = { 'ruff' },
+      swift = { 'swiftformat' },
     },
   },
   keys = {},

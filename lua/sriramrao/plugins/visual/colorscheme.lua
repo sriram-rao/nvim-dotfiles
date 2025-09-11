@@ -36,6 +36,28 @@ function SetTokyonight()
         }
         -- load the colorscheme here
         vim.cmd [[colorscheme tokyonight]]
+        vim.api.nvim_set_hl(0, 'FloatBorder', { fg = '#89b4fa', bg = 'NONE' })
+
+        -- Strong, but subtle separators for splits everywhere
+        local sep_fg = fg_gutter
+        vim.api.nvim_set_hl(0, 'WinSeparator', { fg = sep_fg, bg = 'NONE' })
+        vim.api.nvim_set_hl(0, 'VertSplit', { fg = sep_fg, bg = 'NONE' })
+
+        -- Use thinner-looking line characters for separators
+        vim.opt.fillchars = {
+          eob = ' ',
+          fold = ' ',
+          vert = '┊', -- lighter/dotted vertical
+          horiz = '┈', -- lighter/dotted horizontal
+          horizup = '┴',
+          horizdown = '┬',
+          vertleft = '┤',
+          vertright = '├',
+          verthoriz = '┼',
+        }
+
+        -- Minimal: rely on highlights + global fillchars; Avante pane is handled in its plugin init
+        vim.o.winblend = 0
       end,
     },
   }

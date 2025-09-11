@@ -23,6 +23,16 @@ return {
       },
     }
 
+    lspconfig.sourcekit.setup {
+      capabilities = {
+        workspace = {
+          didChangeWatchedFiles = {
+            dynamicRegistration = true,
+          },
+        },
+      },
+    }
+
     -- import mason
     local mason = require 'mason'
 
@@ -48,13 +58,14 @@ return {
         'cssls',
         'svelte',
         'lua_ls',
-        'emmet_ls',
+        'tailwindcss',
         'ruff',
         'markdown_oxide',
-        'rust_analyzer',
+        -- 'rust_analyzer',
         'jsonls',
         'clangd',
         'cmake',
+        'elixirls',
       },
     }
 
@@ -62,7 +73,7 @@ return {
       ensure_installed = {
         'prettier', -- prettier formatter
         'stylua', -- lua formatter
-        'rustfmt', -- rust formatter
+        -- 'rustfmt', -- rust formatter
         'clang-format',
         -- 'goimports',
         'shfmt', -- shell formatter
@@ -71,10 +82,16 @@ return {
         'eslint_d',
       },
     }
-
+    local venv_python = vim.fn.getcwd() .. '/venv/bin/python'
     if lspconfig.basedpyright then
       lspconfig.basedpyright.setup {
         on_attach = function(client) client:stop() end,
+        settings = {
+          python = {
+            pythonPath = vim.fn.filereadable(venv_python) == 1 and venv_python
+              or 'python3',
+          },
+        },
       }
     end
   end,

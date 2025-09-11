@@ -12,7 +12,7 @@ return {
       desc = 'Open trouble workspace diagnostics',
     },
     {
-      '<leader>xd',
+      '<leader>D',
       '<cmd>Trouble diagnostics toggle filter.buf=0<CR>',
       desc = 'Open trouble document diagnostics',
     },

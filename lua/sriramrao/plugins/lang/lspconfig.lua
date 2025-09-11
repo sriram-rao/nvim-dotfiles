@@ -23,43 +23,69 @@ return {
       callback = function(ev)
         -- Buffer local mappings.
         -- See `:help vim.lsp.*` for documentation on any of the below functions
-        local opts = { buffer = ev.buf, silent = true }
+        local opts = { buffer = ev.buf, silent = true, noremap = true }
+        local client = vim.lsp.get_client_by_id(ev.data.client_id)
 
-        -- set keybinds
+        -- set the rust specific keybinds
+        if client.name == 'rust_analyzer' then
+          opts.desc = 'Hover actions for Rust'
+          keymap.set(
+            'n',
+            '<leader>rh',
+            function() vim.cmd.RustLsp 'codeAction' end,
+            opts
+          )
+
+          opts.desc = 'Run with cargo'
+          keymap.set(
+            'n',
+            '<leader>rc',
+            function() vim.cmd.RustLsp 'runnables' end,
+            opts
+          )
+
+          opts.desc = 'Show in docs.rs'
+          keymap.set(
+            'n',
+            '<leader>rd',
+            function() vim.cmd.RustLsp 'openDocs' end,
+            opts
+          )
+        end
+
+        -- set default keybinds
         opts.desc = 'Show LSP references'
-        keymap.set('n', 'mR', '<cmd>Telescope lsp_references<CR>', opts) -- show definition, references
+        keymap.set('n', ',u', '<cmd>Telescope lsp_references<CR>', opts) -- show definition, references
 
         opts.desc = 'Go to declaration'
-        keymap.set('n', 'mD', vim.lsp.buf.declaration, opts) -- go to declaration
+        keymap.set('n', ',D', vim.lsp.buf.declaration, opts) -- go to declaration
 
         opts.desc = 'Show LSP definitions'
-        keymap.set('n', 'md', '<cmd>Telescope lsp_definitions<CR>', opts) -- show lsp definitions
+        keymap.set('n', ',a', '<cmd>Telescope lsp_definitions<CR>', opts) -- show lsp definitions
 
         opts.desc = 'Show LSP implementations'
-        keymap.set('n', 'mi', '<cmd>Telescope lsp_implementations<CR>', opts) -- show lsp implementations
+        keymap.set('n', ',i', '<cmd>Telescope lsp_implementations<CR>', opts) -- show lsp implementations
 
         opts.desc = 'Show LSP type definitions'
-        keymap.set('n', 'mt', '<cmd>Telescope lsp_type_definitions<CR>', opts) -- show lsp type definitions
+        keymap.set('n', ',t', '<cmd>Telescope lsp_type_definitions<CR>', opts) -- show lsp type definitions
+
+        opts.desc = 'Go to definition'
+        keymap.set('n', 'gd', vim.lsp.buf.definition, opts) -- show lsp type definitions
 
         opts.desc = 'Show documentation for what is under cursor'
-        keymap.set('n', 'ms', vim.lsp.buf.hover, opts) -- show documentation for what is under cursor
+        keymap.set('n', ',s', vim.lsp.buf.hover, opts) -- show documentation for what is under cursor
 
         opts.desc = 'Show buffer diagnostics'
-        keymap.set(
-          'n',
-          '<leader>D',
-          '<cmd>Telescope diagnostics bufnr=0<CR>',
-          opts
-        ) -- show  diagnostics for file
+        keymap.set('n', ',D', '<cmd>Telescope diagnostics bufnr=0<CR>', opts) -- show  diagnostics for file
 
         opts.desc = 'Show line diagnostics'
-        keymap.set('n', '<leader>d', vim.diagnostic.open_float, opts) -- show diagnostics for line
+        keymap.set('n', ',d', vim.diagnostic.open_float, opts) -- show diagnostics for line
 
         opts.desc = 'Go to previous diagnostic'
-        keymap.set('n', 'mp', vim.diagnostic.goto_prev, opts) -- jump to previous diagnostic in buffer
+        keymap.set('n', ',p', vim.diagnostic.goto_prev, opts) -- jump to previous diagnostic in buffer
 
         opts.desc = 'Go to next diagnostic'
-        keymap.set('n', 'mn', vim.diagnostic.goto_next, opts) -- jump to next diagnostic in buffer
+        keymap.set('n', ',n', vim.diagnostic.goto_next, opts) -- jump to next diagnostic in buffer
       end,
     })
 
@@ -79,9 +105,12 @@ return {
       handlers = {
         -- default handler for installed servers
         function(server_name)
+          -- if server_name ~= 'rust_analyzer' then
+          -- let rustaceanvim handle everything rust-related
           lspconfig[server_name].setup {
             capabilities = capabilities,
           }
+          -- end
         end,
         ['svelte'] = function()
           -- configure svelte server
@@ -89,7 +118,7 @@ return {
             capabilities = capabilities,
             on_attach = function(client, bufnr)
               vim.api.nvim_create_autocmd('BufWritePost', {
-                pattern = { '*.js', '*.ts' },
+                pattern = { '*.js', '*.ts', '*.svelte' },
                 callback = function(ctx)
                   -- Here use ctx.match instead of ctx.file
                   client.notify('$/onDidChangeTsOrJsFile', { uri = ctx.match })
@@ -108,22 +137,6 @@ return {
               'svelte',
               'typescriptreact',
               'javascriptreact',
-            },
-          }
-        end,
-        ['emmet_ls'] = function()
-          -- configure emmet language server
-          lspconfig['emmet_ls'].setup {
-            capabilities = capabilities,
-            filetypes = {
-              'html',
-              'typescriptreact',
-              'javascriptreact',
-              'css',
-              'sass',
-              'scss',
-              'less',
-              'svelte',
             },
           }
         end,
