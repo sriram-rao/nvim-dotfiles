@@ -72,6 +72,12 @@ return {
         opts.desc = 'Go to definition'
         keymap.set('n', 'gd', vim.lsp.buf.definition, opts) -- show lsp type definitions
 
+        opts.desc = 'Go back'
+        keymap.set('n', 'gb', '<C-o>', opts)
+
+        opts.desc = 'Go forward'
+        keymap.set('n', 'gF', '<C-O>', opts)
+
         opts.desc = 'Show documentation for what is under cursor'
         keymap.set('n', ',s', vim.lsp.buf.hover, opts) -- show documentation for what is under cursor
 

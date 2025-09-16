@@ -32,6 +32,13 @@ return {
           reasoning_effort = 'low',
         },
       },
+      morph = {
+        model = 'morph-v3-large',
+      },
+      ollama = {
+        endpoint = 'http://localhost:11434',
+        model = 'gemma3:4b',
+      },
     },
     -- Split-based UI: separators are styled via colorscheme config
   },

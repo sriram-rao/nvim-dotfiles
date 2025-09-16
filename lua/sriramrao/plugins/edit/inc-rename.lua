@@ -2,14 +2,15 @@
 return {
   'smjonas/inc-rename.nvim',
   cmd = 'IncRename',
-  config = function()
-    print 'Loading incremental rename plugin...'
-    require('inc_rename').setup()
+  event = { 'BufReadPre', 'BufNewFile' },
+  opts = {},
+  config = function(_, opts)
+    require('inc_rename').setup(opts)
     vim.keymap.set(
       'n',
-      '<leader>rqqr',
+      ',r',
       function() return ':IncRename ' .. vim.fn.expand '<cword>' end,
-      { expr = true, desc = 'LSP Rename (Live)' }
+      { expr = true, desc = 'Incremental rename' }
     )
   end,
 }
