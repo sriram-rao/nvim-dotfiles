@@ -1,3 +1,39 @@
+-- lua/recordline.lua
+local recording_icon = ' '
+
+local function record_status() return recording_icon end
+
+-- Minimal provider-only indicator (with startup fallback)
+local function avante_provider()
+  local config = require 'avante.config'
+  return '\u{f09d1} '
+    .. config.provider
+    .. ' '
+    .. config.providers[config.provider].model
+end
+
+local rec_group = vim.api.nvim_create_augroup('Recordline', { clear = true })
+
+vim.api.nvim_create_autocmd('RecordingEnter', {
+  group = rec_group,
+  callback = function()
+    local reg = vim.fn.reg_recording()
+    recording_icon = reg ~= '' and ('● @' .. reg) or '●'
+    require('lualine').refresh { place = { 'statusline' } }
+  end,
+})
+
+vim.api.nvim_create_autocmd('RecordingLeave', {
+  group = rec_group,
+  callback = function()
+    recording_icon = ' '
+    vim.defer_fn(
+      function() require('lualine').refresh { place = { 'statusline' } } end,
+      50
+    )
+  end,
+})
+
 return {
   'nvim-lualine/lualine.nvim',
   dependencies = { 'nvim-tree/nvim-web-devicons' },
@@ -55,17 +91,52 @@ return {
         theme = my_lualine_theme,
       },
       sections = {
+        -- Move Aerial next to filename on the left
+        lualine_c = {
+          'filename',
+          {
+            'aerial',
+            sep = ' ) ',
+            depth = nil,
+            dense = false,
+            dense_sep = '.',
+            colored = true,
+          },
+        },
         lualine_x = {
+          {
+            record_status,
+            draw_empty = true,
+            padding = { left = 0, right = 1 },
+            color = { fg = colors.red },
+          },
           {
             lazy_status.updates,
             cond = lazy_status.has_updates,
             color = { fg = '#ff9e64' },
           },
-          { 'encoding' },
-          { 'fileformat' },
+          {
+            avante_provider,
+            draw_empty = true,
+            padding = { left = 1, right = 1 },
+            color = { fg = colors.yellow },
+          },
+          -- { 'encoding' },
           { 'filetype' },
         },
       },
     }
+
+    -- Minimal refresh so provider text reflects changes after Avante actions
+    local av_grp =
+      vim.api.nvim_create_augroup('LualineAvanteRefresh', { clear = true })
+    vim.api.nvim_create_autocmd({ 'WinEnter', 'BufEnter' }, {
+      group = av_grp,
+      callback = function()
+        pcall(
+          function() require('lualine').refresh { place = { 'statusline' } } end
+        )
+      end,
+    })
   end,
 }

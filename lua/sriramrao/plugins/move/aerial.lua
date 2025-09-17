@@ -2,12 +2,12 @@ return {
   'stevearc/aerial.nvim',
   keys = {
     {
-      '<leader>aa',
+      '<leader>eo',
       '<cmd>AerialToggle!<CR>',
       desc = 'Aerial toggle',
     },
     {
-      '<leader>ap',
+      '<leader>ep',
       function()
         require('aerial').snacks_picker {
           layout = {
@@ -50,25 +50,10 @@ return {
           show_columns = 'both',
         },
       },
-    }
-    require('telescope').load_extension 'aerial'
-
-    require('lualine').setup {
-      sections = {
-        lualine_x = { 'aerial' },
-
-        -- Or you can customize it
-        lualine_y = {
-          {
-            'aerial',
-            sep = ' ) ',
-            depth = nil,
-            dense = false,
-            dense_sep = '.',
-            colored = true,
-          },
-        },
+      layout = {
+        default_direction = 'left',
       },
     }
+    require('telescope').load_extension 'aerial'
   end,
 }

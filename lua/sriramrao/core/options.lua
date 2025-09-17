@@ -16,6 +16,8 @@ opt.wrap = false
 
 opt.ignorecase = true
 opt.smartcase = true
+opt.wrap = true
+opt.linebreak = true
 
 opt.cursorline = true
 
@@ -50,7 +52,7 @@ vim.diagnostic.config {
     },
   },
   signs = true, -- shows signs in gutter
-  underline = true, -- you're already seeing this
+  underline = true,
   update_in_insert = false,
   severity_sort = true,
 }

@@ -40,9 +40,41 @@ return {
         model = 'gemma3:4b',
       },
     },
+    windows = {
+      edit = { border = 'rounded' },
+      ask = { border = 'rounded' },
+      sidebar_header = { enabled = true, align = 'center', rounded = true },
+    },
     -- Split-based UI: separators are styled via colorscheme config
   },
-  -- No Avante-only separator handling; global separators module manages all panes
+  config = function(_, opts)
+    local avante = require 'avante'
+    avante.setup(opts)
+    local get_provider = function () return require('avante.config').provider end
+    vim.keymap.set('n', '<leader>ao', function()
+      local provider = get_provider()
+      local new_provider = (provider == 'openai' and 'ollama') or 'openai'
+      vim.cmd('AvanteSwitchProvider ' .. new_provider)
+      pcall(function() require('lualine').refresh { place = { 'statusline' } } end)
+    end, { desc = 'avante → OpenAI and Ollama toggle', silent = true })
+
+    -- Open Avante's provider/model picker
+    vim.keymap.set('n', '<leader>al', function() vim.cmd 'AvanteModels' end, {
+      desc = 'Avante → List providers',
+      silent = true,
+    })
+
+    -- Event-based: refresh when window focus changes
+    local grp = vim.api.nvim_create_augroup('AvanteLualineRefresh', { clear = true })
+    vim.api.nvim_create_autocmd({ 'WinEnter', 'FocusGained' }, {
+      group = grp,
+      callback = function()
+        -- print("callback " .. get_provider())
+        pcall(function() require('lualine').refresh { place = { 'statusline' } } end)
+      end,
+    })
+
+  end,
   dependencies = {
     'nvim-lua/plenary.nvim',
     'MunifTanjim/nui.nvim',
