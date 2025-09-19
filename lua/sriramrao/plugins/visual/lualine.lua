@@ -6,10 +6,13 @@ local function record_status() return recording_icon end
 -- Minimal provider-only indicator (with startup fallback)
 local function avante_provider()
   local config = require 'avante.config'
+  local provider = config.acp_provider or config.provider or 'n/a'
+  local provider_config = (config.providers and config.providers[provider])
+    or { model = '' }
   return '\u{f09d1} '
-    .. config.provider
-    .. ' '
-    .. config.providers[config.provider].model
+    .. (
+      provider_config.display_name or (provider .. ' ' .. provider_config.model)
+    )
 end
 
 local rec_group = vim.api.nvim_create_augroup('Recordline', { clear = true })
@@ -38,6 +41,8 @@ return {
   'nvim-lualine/lualine.nvim',
   dependencies = { 'nvim-tree/nvim-web-devicons' },
   config = function()
+    -- Use a single statusline across all windows/splits
+    vim.o.laststatus = 3
     local lualine = require 'lualine'
     local lazy_status = require 'lazy.status' -- to configure lazy pending updates count
 
@@ -89,6 +94,7 @@ return {
     lualine.setup {
       options = {
         theme = my_lualine_theme,
+        globalstatus = true,
       },
       sections = {
         -- Move Aerial next to filename on the left

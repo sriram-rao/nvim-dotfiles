@@ -10,8 +10,8 @@ local function ensure_fillchars()
   local need = {}
   if not fc.eob or fc.eob == '' then need.eob = ' ' end
   if not fc.fold or fc.fold == '' then need.fold = ' ' end
-  if not fc.vert or fc.vert == '' then need.vert = '┊' end
-  if not fc.horiz or fc.horiz == '' then need.horiz = '┈' end
+  if not fc.vert or fc.vert == '' then need.vert = '│' end
+  if not fc.horiz or fc.horiz == '' then need.horiz = '─' end
   if not fc.horizup or fc.horizup == '' then need.horizup = '┴' end
   if not fc.horizdown or fc.horizdown == '' then need.horizdown = '┬' end
   if not fc.vertleft or fc.vertleft == '' then need.vertleft = '┤' end
@@ -33,7 +33,8 @@ local function normalize_winhighlight(win)
   val = val:gsub('VertSplit:[^,]*,?', '')
   val = val:gsub('^,+', ''):gsub(',+$', '')
   if #val > 0 then val = val .. ',' end
-  vim.wo[win].winhighlight = val .. 'WinSeparator:WinSeparator,VertSplit:VertSplit'
+  vim.wo[win].winhighlight = val
+    .. 'WinSeparator:WinSeparator,VertSplit:VertSplit'
 end
 
 local function apply_all()
@@ -47,13 +48,15 @@ function M.setup()
   -- Apply immediately and once the event loop runs (after other init tweaks)
   apply_all()
   vim.schedule(apply_all)
-  local grp = vim.api.nvim_create_augroup('GlobalSplitSeparators', { clear = true })
-  vim.api.nvim_create_autocmd({ 'VimEnter', 'UIEnter', 'WinNew', 'WinEnter', 'BufWinEnter', 'TabEnter' }, {
-    group = grp,
-    callback = function(args)
-      apply_all()
-    end,
-  })
+  local grp =
+    vim.api.nvim_create_augroup('GlobalSplitSeparators', { clear = true })
+  vim.api.nvim_create_autocmd(
+    { 'VimEnter', 'UIEnter', 'WinNew', 'WinEnter', 'BufWinEnter', 'TabEnter' },
+    {
+      group = grp,
+      callback = function(args) apply_all() end,
+    }
+  )
   vim.api.nvim_create_autocmd('ColorScheme', {
     group = grp,
     callback = function()

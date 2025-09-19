@@ -1,16 +1,17 @@
-return {
-  setup = function()
-    local terminal = require('toggleterm.terminal').Terminal
-    local codex = terminal:new {
-      cmd = 'codex',
-      name = 'codex',
-      hidden = true,
-      direction = 'vertical',
-      float_opts = {
-        border = 'curved',
-      },
-    }
+local terminal = require('toggleterm.terminal').Terminal
+local codex = terminal:new {
+  cmd = 'codex',
+  name = 'codex',
+  hidden = true,
+  direction = 'vertical',
+  float_opts = {
+    border = 'curved',
+  },
+}
 
+return {
+  codex = codex,
+  setup = function()
     local keymap = vim.keymap
     keymap.set(
       'n',

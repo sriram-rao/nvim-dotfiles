@@ -43,12 +43,12 @@ function SetTokyonight()
         vim.api.nvim_set_hl(0, 'WinSeparator', { fg = sep_fg, bg = 'NONE' })
         vim.api.nvim_set_hl(0, 'VertSplit', { fg = sep_fg, bg = 'NONE' })
 
-        -- Use thinner-looking line characters for separators
+        -- Use solid line characters for separators
         vim.opt.fillchars = {
           eob = ' ',
           fold = ' ',
-          vert = '┊', -- lighter/dotted vertical
-          horiz = '┈', -- lighter/dotted horizontal
+          vert = '│', -- solid vertical
+          horiz = '─', -- solid horizontal
           horizup = '┴',
           horizdown = '┬',
           vertleft = '┤',
