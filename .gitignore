@@ -1,0 +1,8 @@
+.gitignore
+.DS_Store
+lazy-lock.json
+.luarc.json
+.tool-versions
+.nvim_silencio.json
+.nvimlog
+.avante-rag-added

@@ -8,7 +8,7 @@ return {
   },
   config = function()
     -- import lspconfig plugin
-    local lspconfig = require 'lspconfig'
+    local lspconfig = vim.lsp.config
 
     -- import mason_lspconfig plugin
     local mason_lspconfig = require 'mason-lspconfig'
@@ -106,6 +106,18 @@ return {
       local hl = 'DiagnosticSign' .. type
       vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = '' })
     end
+
+    -- Modern way to set diagnostic signs (replaces the deprecated sign_define above)
+    vim.diagnostic.config {
+      signs = {
+        text = {
+          [vim.diagnostic.severity.ERROR] = '󰅚',
+          [vim.diagnostic.severity.WARN] = '󰀪',
+          [vim.diagnostic.severity.HINT] = '󰌶',
+          [vim.diagnostic.severity.INFO] = '󰋽',
+        },
+      },
+    }
 
     mason_lspconfig.setup {
       handlers = {

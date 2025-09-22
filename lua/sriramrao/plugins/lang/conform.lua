@@ -3,6 +3,13 @@ return {
   event = { 'BufReadPre', 'BufNewFile' },
   opts = {
     notify_on_error = false,
+    formatters = {
+      stylua = {
+        command = 'stylua',
+        args = { '--config-path', vim.fn.expand('~/.config/nvim/stylua.toml'), '-' },
+        stdin = true,
+      },
+    },
     format_on_save = function(bufnr)
       if vim.g.disable_autoformat or vim.b[bufnr].disable_autoformat then
         return
@@ -27,10 +34,7 @@ return {
       markdown = { 'prettier' },
       graphql = { 'prettier' },
       liquid = { 'prettier' },
-      lua = {
-        'stylua',
-        command = 'stylua --config-path ~/.config/nvim/stylua.toml',
-      },
+      lua = { 'stylua' },
       python = { 'ruff' },
       swift = { 'swiftformat' },
     },

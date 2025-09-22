@@ -11,7 +11,7 @@ return {
       auto_apply_diff_after_generation = true,
       minimize_diff = true,
     },
-    provider = 'openai',
+    provider = 'claude',
     mode = 'legacy',
     providers = {
       claude = {
@@ -39,6 +39,8 @@ return {
         timeout = 30000, -- Timeout in milliseconds
         extra_request_body = {
           temperature = 1,
+          -- tool_choice = 'auto', -- critical
+          -- parallel_tool_calls = true,
           reasoning_effort = 'low',
         },
       },
@@ -72,6 +74,36 @@ return {
         },
       },
     },
+    rag_service = {
+      enabled = true,
+      runner = 'docker', -- uses a tiny sidecar; no local LLM
+      host_mount = vim.fn.getcwd(), -- project root only
+      llm = {
+        provider = 'openai',
+        endpoint = 'https://api.openai.com/v1',
+        api_key = 'OPENAI_API_KEY',
+        model = 'gpt-4o-mini',
+      },
+      embed = {
+        provider = 'openai',
+        endpoint = 'https://api.openai.com/v1',
+        api_key = 'OPENAI_API_KEY',
+        model = 'text-embedding-3-small',
+      },
+      docker_extra_args = table.concat({
+        '--memory=1g',
+        '--memory-swap=1g',
+        '--cpus=1',
+        '-e DATA_DIR=/data',
+        '-e IGNORE_GLOBS="**/node_modules/**,**/.git/**,**/dist/**,**/build/**,**/.venv/**,**/venv/**,**/target/**,**/*.png,**/*.jpg,**/*.pdf,**/*.zip,**/*.mp4,**/*.bin"',
+        '-e INCLUDE_GLOBS="**/*.py,**/*.ts,**/*.tsx,**/*.js,**/*.lua,**/*.go,**/*.rs,**/*.md,**/*.json,**/*.toml,**/*.yml,**/*.yaml"',
+        '-e TOP_K=10',
+        '-e CHUNK_SIZE=700',
+        '-e CHUNK_OVERLAP=80',
+        '-e OPENAI_API_KEY=' .. (os.getenv 'OPENAI_API_KEY' or ''),
+      }, ' '),
+    },
+
     system_prompt = function()
       local hub = require('mcphub').get_hub_instance()
       return hub and hub:get_active_servers_prompt() or ''
@@ -104,6 +136,57 @@ return {
     local avante = require 'avante'
 
     avante.setup(opts)
+
+    -- Auto-add current directory to RAG service once per project
+    local function setup_rag_resource()
+      local cwd = vim.fn.getcwd()
+      local rag_marker = cwd .. '/.avante-rag-added'
+
+      -- Check if already added for this project
+      if vim.fn.filereadable(rag_marker) == 1 then return end
+
+      -- Wait for service to be ready before checking resources
+      local function wait_for_service_and_add(retries)
+        if retries <= 0 then return end
+
+        vim.defer_fn(function()
+          local rag_service = require 'avante.rag_service'
+
+          -- Check if service is actually responding
+          local ok, resources = pcall(rag_service.get_resources)
+          if not ok or not resources then
+            -- Service not ready, retry
+            wait_for_service_and_add(retries - 1)
+            return
+          end
+
+          -- Check if resource already exists
+          if resources.resources then
+            for _, resource in ipairs(resources.resources) do
+              if
+                resource.uri == 'file://' .. cwd
+                or resource.uri == 'file:///host'
+              then
+                -- Resource exists, create marker
+                vim.fn.writefile({ cwd }, rag_marker)
+                return
+              end
+            end
+          end
+
+          -- Add resource and create marker
+          pcall(function()
+            rag_service.add_resource(cwd)
+            vim.fn.writefile({ cwd }, rag_marker)
+          end)
+        end, 3000)
+      end
+
+      wait_for_service_and_add(5) -- Try 5 times
+    end
+
+    -- Setup RAG resource on startup
+    setup_rag_resource()
 
     ---@param provider string
     local function apply_provider_choice(provider)

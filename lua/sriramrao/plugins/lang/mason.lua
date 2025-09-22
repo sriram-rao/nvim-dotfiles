@@ -9,10 +9,8 @@ return {
   },
   config = function()
     -- here until they work with mason
-    -- require("lspconfig").gopls.setup({})
-    local lspconfig = require 'lspconfig'
-    lspconfig.java_language_server.setup {}
-    lspconfig.gopls.setup {
+    vim.lsp.config('jdtls', {})
+    vim.lsp.config('gopls', {
       settings = {
         gopls = {
           format = {
@@ -21,9 +19,9 @@ return {
           },
         },
       },
-    }
+    })
 
-    lspconfig.sourcekit.setup {
+    vim.lsp.config('sourcekit', {
       capabilities = {
         workspace = {
           didChangeWatchedFiles = {
@@ -31,8 +29,20 @@ return {
           },
         },
       },
-    }
+    })
 
+    local venv_python = vim.fn.getcwd() .. '/venv/bin/python'
+    vim.lsp.config('basedpyright', {
+      on_attach = function(client) client:stop() end,
+      settings = {
+        python = {
+          pythonPath = vim.fn.filereadable(venv_python) == 1 and venv_python
+            or 'python3',
+        },
+      },
+    })
+
+    vim.lsp.enable { 'basedpyright', 'gopls', 'jdtls', 'sourcekit' }
     -- import mason
     local mason = require 'mason'
 
@@ -61,18 +71,19 @@ return {
         'tailwindcss',
         'ruff',
         'markdown_oxide',
-        -- 'rust_analyzer',
+
         'jsonls',
         'clangd',
         'cmake',
         'elixirls',
+        'jdtls',
       },
     }
 
     mason_tool_installer.setup {
       ensure_installed = {
         'prettier', -- prettier formatter
-        'stylua', -- lua formatter
+        -- 'stylua', -- lua formatter
         -- 'rustfmt', -- rust formatter
         'clang-format',
         -- 'goimports',
@@ -82,17 +93,5 @@ return {
         'eslint_d',
       },
     }
-    local venv_python = vim.fn.getcwd() .. '/venv/bin/python'
-    if lspconfig.basedpyright then
-      lspconfig.basedpyright.setup {
-        on_attach = function(client) client:stop() end,
-        settings = {
-          python = {
-            pythonPath = vim.fn.filereadable(venv_python) == 1 and venv_python
-              or 'python3',
-          },
-        },
-      }
-    end
   end,
 }
