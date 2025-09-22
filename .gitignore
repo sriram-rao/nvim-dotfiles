@@ -6,3 +6,8 @@ lazy-lock.json
 .nvim_silencio.json
 .nvimlog
 .avante-rag-added
+venv/bin/python3
+venv/
+.venv/
+env/
+.env/

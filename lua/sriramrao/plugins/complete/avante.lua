@@ -11,8 +11,8 @@ return {
       auto_apply_diff_after_generation = true,
       minimize_diff = true,
     },
-    provider = 'claude',
-    mode = 'legacy',
+    provider = 'openai',
+    mode = 'agentic',
     providers = {
       claude = {
         endpoint = 'https://api.anthropic.com',
@@ -77,7 +77,7 @@ return {
     rag_service = {
       enabled = true,
       runner = 'docker', -- uses a tiny sidecar; no local LLM
-      host_mount = vim.fn.getcwd(), -- project root only
+      host_mount = vim.fn.expand '~/Code',
       llm = {
         provider = 'openai',
         endpoint = 'https://api.openai.com/v1',
@@ -91,11 +91,11 @@ return {
         model = 'text-embedding-3-small',
       },
       docker_extra_args = table.concat({
-        '--memory=1g',
-        '--memory-swap=1g',
-        '--cpus=1',
+        '--memory=2g',
+        '--memory-swap=2g',
+        '--cpus=2',
         '-e DATA_DIR=/data',
-        '-e IGNORE_GLOBS="**/node_modules/**,**/.git/**,**/dist/**,**/build/**,**/.venv/**,**/venv/**,**/target/**,**/*.png,**/*.jpg,**/*.pdf,**/*.zip,**/*.mp4,**/*.bin"',
+        '-e IGNORE_GLOBS="target/**,**/target/**,**/node_modules/**,**/.git/**,**/dist/**,**/build/**,**/.venv/**,**/venv/**,**/.next/**,**/.svelte-kit/**,**/.turbo/**,**/*.png,**/*.jpg,**/*.pdf,**/*.zip,**/*.mp4,**/*.bin"',
         '-e INCLUDE_GLOBS="**/*.py,**/*.ts,**/*.tsx,**/*.js,**/*.lua,**/*.go,**/*.rs,**/*.md,**/*.json,**/*.toml,**/*.yml,**/*.yaml"',
         '-e TOP_K=10',
         '-e CHUNK_SIZE=700',
@@ -106,7 +106,17 @@ return {
 
     system_prompt = function()
       local hub = require('mcphub').get_hub_instance()
-      return hub and hub:get_active_servers_prompt() or ''
+      local prompts = {}
+
+      local hub_prompt = hub and hub:get_active_servers_prompt() or ''
+      if hub_prompt ~= '' then table.insert(prompts, hub_prompt) end
+
+      table.insert(
+        prompts,
+        [[Use `rag_search` whenever the task hinges on the current project’s files, history, or other locally indexed context. Prefer RAG before broader web or filesystem tools in those situations, and fall back to other tools only when RAG returns no useful sources or the task clearly needs info outside the repo.]]
+      )
+
+      return table.concat(prompts, '\n\n')
     end,
     custom_tools = function()
       return {
@@ -114,6 +124,8 @@ return {
       }
     end,
     disabled_tools = {
+      'view',
+      'add_file_to_context',
       'list_files', -- built-in file operations
       'search_files',
       'read_file',
@@ -124,6 +136,8 @@ return {
       'rename_dir',
       'delete_dir',
       'bash', -- built-in terminal access
+      'add_todos',
+      'update_todo_status',
     },
     windows = {
       edit = { border = 'rounded' },
@@ -142,6 +156,12 @@ return {
       local cwd = vim.fn.getcwd()
       local rag_marker = cwd .. '/.avante-rag-added'
 
+      local function to_dir_uri(path)
+        if not path:match '^file://' then path = 'file://' .. path end
+        if path:sub(-1) ~= '/' then path = path .. '/' end
+        return path
+      end
+
       -- Check if already added for this project
       if vim.fn.filereadable(rag_marker) == 1 then return end
 
@@ -151,11 +171,37 @@ return {
 
         vim.defer_fn(function()
           local rag_service = require 'avante.rag_service'
+          local project_uri = to_dir_uri(cwd)
+          local container_uri = rag_service.to_container_uri(project_uri)
+          local normalized_uris = { container_uri }
+
+          if container_uri:sub(-1) == '/' then
+            table.insert(normalized_uris, container_uri:sub(1, -2))
+          else
+            table.insert(normalized_uris, container_uri .. '/')
+          end
+
+          if project_uri ~= container_uri then
+            table.insert(normalized_uris, project_uri)
+          end
+          if project_uri:sub(-1) == '/' then
+            table.insert(normalized_uris, project_uri:sub(1, -2))
+          end
 
           -- Check if service is actually responding
           local ok, resources = pcall(rag_service.get_resources)
           if not ok or not resources then
-            -- Service not ready, retry
+            -- Service not ready, check if container exists and restart if needed
+            vim.system {
+              'docker',
+              'exec',
+              '-d',
+              'avante-rag-service',
+              'sh',
+              '-c',
+              'pkill -f uvicorn; cd /app && python3 -m pip install -r requirements.txt >/dev/null 2>&1 && python3 -m uvicorn src.main:app --host 0.0.0.0 --port 20250',
+            }
+            -- Retry with longer delay after restart
             wait_for_service_and_add(retries - 1)
             return
           end
@@ -163,23 +209,22 @@ return {
           -- Check if resource already exists
           if resources.resources then
             for _, resource in ipairs(resources.resources) do
-              if
-                resource.uri == 'file://' .. cwd
-                or resource.uri == 'file:///host'
-              then
-                -- Resource exists, create marker
-                vim.fn.writefile({ cwd }, rag_marker)
-                return
+              for _, uri in ipairs(normalized_uris) do
+                if resource.uri == uri then
+                  -- Resource exists, create marker
+                  vim.fn.writefile({ cwd }, rag_marker)
+                  return
+                end
               end
             end
           end
 
           -- Add resource and create marker
           pcall(function()
-            rag_service.add_resource(cwd)
+            rag_service.add_resource(project_uri)
             vim.fn.writefile({ cwd }, rag_marker)
           end)
-        end, 3000)
+        end, retries == 5 and 5000 or 3000) -- First attempt waits 5s, others 3s
       end
 
       wait_for_service_and_add(5) -- Try 5 times
@@ -187,6 +232,35 @@ return {
 
     -- Setup RAG resource on startup
     setup_rag_resource()
+
+    -- Optional debug wrapper to inspect RAG invocations
+    local rag_service = require 'avante.rag_service'
+    if not rag_service._debug_wrapper then
+      local original_retrieve = rag_service.retrieve
+      rag_service.retrieve = function(base_uri, query, on_complete)
+        local function debug_message(msg, level)
+          if vim.g.AVANTE_RAG_DEBUG then
+            vim.notify(msg, level or vim.log.levels.INFO)
+          end
+        end
+
+        debug_message(string.format('[RAG] base=%s query=%s', base_uri, query))
+
+        -- Trim polite prefixes that LLMs sometimes prepend to rag_search queries
+        local sanitized = query:gsub('^%s*[Uu]se rag_search to%s*', ''):gsub('^%s*[Pp]lease%s*', '')
+        sanitized = sanitized:gsub('%s+$', '')
+
+        return original_retrieve(base_uri, sanitized, function(resp, err)
+          local count = resp and resp.sources and #resp.sources or 0
+          debug_message(
+            string.format('[RAG] sources=%d%s', count, err and (' error: ' .. err) or ''),
+            err and vim.log.levels.ERROR or vim.log.levels.INFO
+          )
+          if on_complete then on_complete(resp, err) end
+        end)
+      end
+      rag_service._debug_wrapper = true
+    end
 
     ---@param provider string
     local function apply_provider_choice(provider)

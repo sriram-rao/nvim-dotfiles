@@ -37,6 +37,7 @@ opt.splitbelow = true
 opt.termguicolors = true -- will only work in a true color terminal
 opt.background = 'dark'
 opt.signcolumn = 'yes'
+opt.winborder = 'single'
 
 vim.g.have_nerd_font = true
 
