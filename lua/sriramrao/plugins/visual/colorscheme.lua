@@ -79,4 +79,17 @@ function SetSolarizedOsaka()
   }
 end
 
+function SetOneDark()
+  return {
+    {
+      'olimorris/onedarkpro.nvim',
+      priority = 1000,
+      config = function()
+        vim.cmd 'colorscheme onedark_dark'
+        return require('onedarkpro').setup {}
+      end,
+    },
+  }
+end
+
 return SetTokyonight()

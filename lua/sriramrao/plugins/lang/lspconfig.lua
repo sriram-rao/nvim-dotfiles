@@ -16,6 +16,32 @@ return {
     -- import cmp-nvim-lsp plugin
     local cmp_nvim_lsp = require 'cmp_nvim_lsp'
 
+    if not vim.lsp.util._offset_encoding_guard then
+      local original_make_position_params = vim.lsp.util.make_position_params
+      vim.lsp.util.make_position_params = function(win, encoding, ...)
+        if not encoding then
+          local bufnr = win and vim.api.nvim_win_get_buf(win) or vim.api.nvim_get_current_buf()
+          for _, client in ipairs(vim.lsp.get_clients { bufnr = bufnr }) do
+            if client.offset_encoding then
+              encoding = client.offset_encoding
+              break
+            end
+          end
+          encoding = encoding or 'utf-16'
+        end
+        return original_make_position_params(win, encoding, ...)
+      end
+      vim.lsp.util._offset_encoding_guard = true
+    end
+
+    if not vim.lsp.util._jump_location_guard then
+      local show_document = vim.lsp.util.show_document
+      vim.lsp.util.jump_to_location = function(location, position_encoding, reuse_win)
+        return show_document(location, position_encoding, { reuse_win = reuse_win, focus = true })
+      end
+      vim.lsp.util._jump_location_guard = true
+    end
+
     local keymap = vim.keymap -- for conciseness
 
     vim.api.nvim_create_autocmd('LspAttach', {
@@ -175,6 +201,7 @@ return {
             },
           }
         end,
+        -- NOTE: ruff configured explicitly for utf-16 offsets to match other providers
       },
     }
   end,

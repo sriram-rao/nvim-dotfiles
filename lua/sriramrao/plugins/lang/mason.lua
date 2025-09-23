@@ -33,11 +33,18 @@ return {
 
     local venv_python = vim.fn.getcwd() .. '/venv/bin/python'
     vim.lsp.config('basedpyright', {
-      on_attach = function(client) client:stop() end,
       settings = {
         python = {
           pythonPath = vim.fn.filereadable(venv_python) == 1 and venv_python
             or 'python3',
+        },
+      },
+    })
+
+    vim.lsp.config('ruff', {
+      capabilities = {
+        general = {
+          positionEncodings = { 'utf-16' },
         },
       },
     })
