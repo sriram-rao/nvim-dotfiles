@@ -11,13 +11,14 @@ return {
       auto_apply_diff_after_generation = true,
       minimize_diff = true,
     },
-    provider = 'openai',
+    provider = 'claude-code',
     mode = 'agentic',
     providers = {
       claude = {
         endpoint = 'https://api.anthropic.com',
-        model = 'claude-sonnet-4-20250514',
+        model = 'claude-sonnet-5',
         model_names = {
+          'claude-sonnet-4-5',
           'claude-sonnet-4-20250514',
           'claude-3-7-sonnet-20250219',
           'claude-3-5-sonnet-20241022',
@@ -65,12 +66,11 @@ return {
           GEMINI_API_KEY = os.getenv 'GEMINI_API_KEY',
         },
       },
-      ['claude-cli'] = {
+      ['claude-code'] = {
         command = 'npx',
-        args = { '@zed-industries/claude-code-acp' },
+        args = { '--yes', '@zed-industries/claude-code-acp' },
         env = {
           NODE_NO_WARNINGS = '1',
-          ANTHROPIC_API_KEY = os.getenv 'ANTHROPIC_API_KEY',
         },
       },
     },
@@ -247,13 +247,19 @@ return {
         debug_message(string.format('[RAG] base=%s query=%s', base_uri, query))
 
         -- Trim polite prefixes that LLMs sometimes prepend to rag_search queries
-        local sanitized = query:gsub('^%s*[Uu]se rag_search to%s*', ''):gsub('^%s*[Pp]lease%s*', '')
+        local sanitized = query
+          :gsub('^%s*[Uu]se rag_search to%s*', '')
+          :gsub('^%s*[Pp]lease%s*', '')
         sanitized = sanitized:gsub('%s+$', '')
 
         return original_retrieve(base_uri, sanitized, function(resp, err)
           local count = resp and resp.sources and #resp.sources or 0
           debug_message(
-            string.format('[RAG] sources=%d%s', count, err and (' error: ' .. err) or ''),
+            string.format(
+              '[RAG] sources=%d%s',
+              count,
+              err and (' error: ' .. err) or ''
+            ),
             err and vim.log.levels.ERROR or vim.log.levels.INFO
           )
           if on_complete then on_complete(resp, err) end
@@ -281,8 +287,9 @@ return {
 
     vim.keymap.set('n', '<leader>al', function()
       local choices = {
+        { name = 'codex', display = 'Codex (GPT-5)' },
         { name = 'openai', display = 'OpenAI GPT' },
-        { name = 'claude-cli', display = 'Claude Code CLI' },
+        { name = 'claude-code', display = 'Claude Code CLI' },
         { name = 'claude', display = 'Claude Sonnet' },
         { name = 'gemini-cli', display = 'Gemini CLI' },
       }
