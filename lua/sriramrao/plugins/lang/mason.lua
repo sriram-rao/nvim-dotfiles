@@ -49,7 +49,38 @@ return {
       },
     })
 
-    vim.lsp.enable { 'basedpyright', 'gopls', 'jdtls', 'sourcekit' }
+    vim.lsp.config('ts_ls', {
+      settings = {
+        typescript = {
+          format = {
+            indentSize = 4,
+            convertTabsToSpaces = true,
+          },
+        },
+        javascript = {
+          format = {
+            indentSize = 4,
+            convertTabsToSpaces = true,
+          },
+        },
+      },
+      filetypes = {
+        'typescript',
+        'typescriptreact',
+        'javascript',
+        'javascriptreact',
+        'svelte',
+      },
+    })
+
+    vim.lsp.enable {
+      'basedpyright',
+      'gopls',
+      'jdtls',
+      'ruff',
+      'sourcekit',
+      'ts_ls',
+    }
     -- import mason
     local mason = require 'mason'
 
@@ -78,6 +109,7 @@ return {
         'tailwindcss',
         'ruff',
         'markdown_oxide',
+        'ts_ls',
 
         'jsonls',
         'clangd',
@@ -102,3 +134,4 @@ return {
     }
   end,
 }
+

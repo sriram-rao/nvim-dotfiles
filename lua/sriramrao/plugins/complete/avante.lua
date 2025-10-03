@@ -8,15 +8,16 @@ return {
     instructions_file = 'AGENTS.md',
     behaviour = {
       enable_fastapply = true,
-      auto_apply_diff_after_generation = true,
+      auto_apply_diff_after_generation = false,
       minimize_diff = true,
+      auto_save_before_apply = true,
     },
     provider = 'claude-code',
     mode = 'agentic',
     providers = {
       claude = {
         endpoint = 'https://api.anthropic.com',
-        model = 'claude-sonnet-5',
+        model = 'claude-sonnet-4-5',
         model_names = {
           'claude-sonnet-4-5',
           'claude-sonnet-4-20250514',
@@ -46,11 +47,14 @@ return {
         },
       },
       morph = {
+        endpoint = 'https://api.morph.so/v1',
         model = 'morph-v3-large',
         model_names = {
           'morph-v3-large',
           'morph-v3-small',
         },
+        api_key_name = 'MORPH_API_KEY',
+        timeout = 30000,
       },
     },
     web_search_engine = {
@@ -67,8 +71,14 @@ return {
         },
       },
       ['claude-code'] = {
-        command = 'npx',
-        args = { '--yes', '@zed-industries/claude-code-acp' },
+        command = 'env',
+        args = {
+          '-u',
+          'ANTHROPIC_API_KEY',
+          'npx',
+          '--yes',
+          '@zed-industries/claude-code-acp',
+        },
         env = {
           NODE_NO_WARNINGS = '1',
         },
@@ -148,13 +158,14 @@ return {
   },
   config = function(_, opts)
     local avante = require 'avante'
-
     avante.setup(opts)
 
     -- Auto-add current directory to RAG service once per project
     local function setup_rag_resource()
       local cwd = vim.fn.getcwd()
-      local rag_marker = cwd .. '/.avante-rag-added'
+      local nvim_dir = cwd .. '/.nvim'
+      vim.fn.mkdir(nvim_dir, 'p')
+      local rag_marker = nvim_dir .. '/.avante-rag-added'
 
       local function to_dir_uri(path)
         if not path:match '^file://' then path = 'file://' .. path end
@@ -292,6 +303,7 @@ return {
         { name = 'claude-code', display = 'Claude Code CLI' },
         { name = 'claude', display = 'Claude Sonnet' },
         { name = 'gemini-cli', display = 'Gemini CLI' },
+        { name = 'morph', display = 'Morph v3' },
       }
 
       vim.ui.select(choices, {

@@ -50,7 +50,7 @@ return {
 
     keymap.set(
       'n',
-      '<leader>ee',
+      '<leader>ed',
       '<cmd>NvimTreeToggle<CR>',
       { desc = 'Toggle file explorer' }
     ) -- toggle file explorer
@@ -77,6 +77,12 @@ return {
       '<leader>et',
       '<cmd>NvimTreeFocus<CR>',
       { desc = 'Switch to file explorer' }
+    ) -- refresh file explorer
+    keymap.set(
+      'n',
+      '<leader>ee',
+      '<cmd>NvimTreeFindFile<CR>',
+      { desc = 'Go to current file' }
     ) -- refresh file explorer
   end,
 }

@@ -9,7 +9,9 @@ local function get_project_root()
 end
 
 local function get_ignore_path()
-  return get_project_root() .. '/.nvim_silencio.json'
+  local nvim_dir = get_project_root() .. '/.nvim'
+  vim.fn.mkdir(nvim_dir, 'p')
+  return nvim_dir .. '/silencio.json'
 end
 
 -- Load once on startup

@@ -22,6 +22,7 @@ opt.linebreak = true
 opt.cursorline = true
 
 opt.undofile = true
+opt.hidden = true -- allow switching buffers with unsaved changes
 
 opt.list = true
 opt.listchars = { tab = '» ', trail = '·', nbsp = '␣' }
