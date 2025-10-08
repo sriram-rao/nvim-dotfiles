@@ -1,5 +1,6 @@
 return {
   'zbirenbaum/copilot.lua',
+  enabled = false, -- Disabled in favor of Tabby
   cmd = 'Copilot',
   build = ':Copilot auth',
   event = 'InsertEnter',

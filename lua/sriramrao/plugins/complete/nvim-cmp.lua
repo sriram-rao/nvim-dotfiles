@@ -47,7 +47,7 @@ return {
       },
       -- sources for autocompletion
       sources = cmp.config.sources {
-        { name = 'copilot' },
+        -- { name = 'copilot' }, -- Disabled in favor of Tabby
         { name = 'nvim_lsp' },
         { name = 'luasnip' }, -- snippets
         { name = 'buffer' }, -- text within current buffer
@@ -59,7 +59,7 @@ return {
         format = lspkind.cmp_format {
           maxwidth = 50,
           ellipsis_char = '...',
-          symbol_map = { Copilot = '' },
+          symbol_map = { Tabby = '' },
         },
       },
     }

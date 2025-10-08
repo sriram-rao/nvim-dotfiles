@@ -7,11 +7,12 @@ return {
     instructions_file = 'AGENTS.md',
     behaviour = {
       enable_fastapply = true,
-      auto_apply_diff_after_generation = false,
+      auto_apply_diff_after_generation = true,
       minimize_diff = true,
       auto_save_before_apply = true,
+      enable_inline_diff = true,
     },
-    provider = 'claude-code',
+    provider = 'ollama',
     mode = 'agentic',
     providers = require 'sriramrao.plugins.complete.avante.providers',
     web_search_engine = {
@@ -20,25 +21,21 @@ return {
     },
     acp_providers = require 'sriramrao.plugins.complete.avante.acp_providers',
     rag_service = require 'sriramrao.plugins.complete.avante.rag',
-    system_prompt = function()
-      local hub = require('mcphub').get_hub_instance()
-      local prompts = {}
-
-      local hub_prompt = hub and hub:get_active_servers_prompt() or ''
-      if hub_prompt ~= '' then table.insert(prompts, hub_prompt) end
-
-      table.insert(
-        prompts,
-        [[Use `rag_search` whenever the task hinges on the current project's files, history, or other locally indexed context. Prefer RAG before broader web or filesystem tools in those situations, and fall back to other tools only when RAG returns no useful sources or the task clearly needs info outside the repo.]]
-      )
-
-      return table.concat(prompts, '\n\n')
-    end,
-    custom_tools = function()
-      return {
-        require('mcphub.extensions.avante').mcp_tool(),
-      }
-    end,
+    -- system_prompt = function()
+    --   local ok, hub = pcall(require('mcphub').get_hub_instance)
+    --   if not ok then return '' end
+    --
+    --   local prompt = hub and hub:get_active_servers_prompt() or ''
+    --   -- Replace newlines with spaces to avoid nvim_buf_set_lines error
+    --   return prompt:gsub('\n', ' ')
+    -- end,
+    -- custom_tools = function()
+    --   local ok, mcp_tool = pcall(function()
+    --     return require('mcphub.extensions.avante').mcp_tool()
+    --   end)
+    --   if not ok then return {} end
+    --   return { mcp_tool }
+    -- end,
     disabled_tools = {
       'view',
       'add_file_to_context',
