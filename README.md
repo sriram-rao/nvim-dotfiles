@@ -1,29 +1,28 @@
 # nvim
 
-Personal Neovim configuration with AI-assisted development via Avante.nvim.
+Personal Neovim configuration with AI-assisted development.
 
 ## Structure
 
-Configuration is organized by plugin usage patterns:
+Configuration is organized by plugin usage patterns. All external plugins are configured in `lua/sriramrao/plugins/`:
 
-- `lua/sriramrao/plugins/complete/` - Completion and AI tools (Avante, Copilot, nvim-cmp)
-- `lua/sriramrao/plugins/edit/` - Text editing enhancements (surround, comment, autopairs, substitute, lazygit)
-- `lua/sriramrao/plugins/lang/` - Language-specific tools (LSP, treesitter, conform, lint, DAP, rustacean)
-- `lua/sriramrao/plugins/move/` - Navigation and movement (telescope, nvim-tree, aerial, hop)
-- `lua/sriramrao/plugins/visual/` - UI components (lualine, bufferline, colorscheme, gitsigns, trouble, which-key)
-- `lua/sriramrao/plugins/session/` - Session management
-- `lua/sriramrao/plugins/util/` - Utility plugins
-- `lua/sriramrao/plugins/local/` - Local/custom plugins
+- `complete/` - Completion and AI tools
+- `edit/` - Text editing enhancements
+- `lang/` - Language-specific tools
+- `move/` - Navigation and movement
+- `visual/` - UI components
+- `session/` - Session management
+- `util/` - Utility plugins
+- `local/` - Local/custom plugins
 
-## Avante Setup
+## AI Features
 
-Avante is configured with:
+### Avante
+AI-powered chat interface for code generation and refactoring with:
+- Multiple provider support (local via Ollama, CLI tools, paid APIs)
+- Project-aware RAG for contextual understanding
+- Provider and model switchers for easy configuration changes
+- Agentic mode for complex multi-step tasks
 
-- **Claude Code** as the default provider (via local CLI)
-- **RAG service** for project-aware context retrieval
-- **MCP tools** for extended functionality
-- **Web search** integration via Google
-- **Agentic mode** for complex multi-step tasks
-
-Provider switching: Use `:lua require('sriramrao.plugins.complete.avante.setup').switch_provider()` to change AI providers on the fly.
-
+### Autocomplete
+Inline code suggestions with ghost text previews powered by Tabby, using local models for privacy.
