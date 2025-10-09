@@ -73,14 +73,14 @@ return {
       },
     })
 
-    vim.lsp.enable {
-      'basedpyright',
-      'gopls',
-      'jdtls',
-      'ruff',
-      'sourcekit',
-      'ts_ls',
-    }
+    -- vim.lsp.enable {
+    --   'basedpyright',
+    --   'gopls',
+    --   'jdtls',
+    --   'ruff',
+    --   'sourcekit',
+    --   'ts_ls',
+    -- }
     -- import mason
     local mason = require 'mason'
 
@@ -134,4 +134,3 @@ return {
     }
   end,
 }
-

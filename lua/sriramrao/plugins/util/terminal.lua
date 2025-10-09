@@ -36,7 +36,5 @@ return {
     require('toggleterm').setup {
       direction = 'horizontal',
     }
-
-    require('sriramrao.plugins.local.codex').setup()
   end,
 }

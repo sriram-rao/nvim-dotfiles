@@ -20,4 +20,12 @@ return {
       NODE_NO_WARNINGS = '1',
     },
   },
+
+  ['codex'] = {
+    command = 'codex-acp',
+    args = { '--no-stream' },
+    env = {
+      NODE_NO_WARNINGS = '1',
+    },
+  },
 }

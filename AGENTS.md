@@ -1,5 +1,3 @@
-Note: Avante claude-code ACP now unsets ANTHROPIC_API_KEY and uses the locally installed claude-code CLI for auth only.
-
 General:
 
 - Always respond concisely.

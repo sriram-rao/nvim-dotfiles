@@ -52,31 +52,34 @@ return {
   },
   ollama = {
     endpoint = 'http://localhost:11434',
-    model = 'deepseek-coder:6.7b',
+    model = 'hermes3:8b',
     timeout = 30000,
     model_names = {
-      'codegemma:2b',
-      'codegemma:7b',
-      'deepseek-coder:1.3b',
-      'deepseek-coder:6.7b',
       'gemma3:1b',
       'gemma3:4b',
+      'gpt-oss:20b-cloud',
+      'gpt-oss:120b-cloud',
+      'hermes3:3b',
+      'hermes3:8b',
+      'llama3.1:8b',
+      'llama3.2:3b',
       'qwen2.5-coder:1.5b',
-      'qwen2.5-coder:7b',
       'starcoder2:3b',
-      'starcoder2:7b',
     },
     extra_request_body = {
       options = {
-        temperature = 0.75,
-        num_ctx = 4096,
-        num_predict = 512,  -- Keep responses short
+        temperature = 0.3,
+        top_p = 0.9,
+        repeat_penalty = 1.0,
+        num_ctx = 8192,
+        num_predict = 1024, -- Keep responses short
+        stop = { '```\n\n' },
       },
     },
   },
   tabby = {
     endpoint = 'http://localhost:8080/v1beta',
-    model = 'deepseek-coder:6.7b',
+    model = 'deepseek-coder:6.7b-instruct',
     timeout = 30000,
   },
 }

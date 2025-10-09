@@ -1,29 +1,22 @@
 return {
   enabled = true,
-  runner = 'docker',
+  runner = 'nix',
   host_mount = vim.fn.expand '~/Code',
-  llm = {
-    provider = 'ollama',
-    endpoint = 'http://localhost:11434',
-    api_key = '',
-    model = 'deepseek-coder:6.7b',
+  llm = { -- Configuration for the Language Model (LLM) used by the RAG service
+    provider = 'openai', -- The LLM provider
+    endpoint = 'https://api.openai.com/v1', -- OpenAI API endpoint
+    api_key = 'OPENAI_API_KEY', -- Environment variable name for API key
+    model = 'gpt-4o-mini', -- The LLM model name
+    extra = nil, -- Extra configuration options for the LLM (optional)
   },
-  embed = {
-    provider = 'ollama',
-    endpoint = 'http://localhost:11434',
-    api_key = '',
-    model = 'nomic-embed-text',
+
+  embed = { -- Configuration for the Embedding Model used by the RAG service
+    provider = 'openai', -- The Embedding provider
+    endpoint = 'https://api.openai.com/v1', -- OpenAI API endpoint
+    api_key = 'OPENAI_API_KEY', -- Environment variable name for API key
+    model = 'text-embedding-3-medium', -- The Embedding model name
+    extra = { -- Extra configuration options for the Embedding model (optional)
+      embed_batch_size = 10,
+    },
   },
-  -- docker_extra_args = table.concat({
-  --   '--memory=2g',
-  --   '--memory-swap=2g',
-  --   '--cpus=2',
-  --   '-e DATA_DIR=/data',
-  --   '-e IGNORE_GLOBS="target/**,**/target/**,**/node_modules/**,**/.git/**,**/dist/**,**/build/**,**/.venv/**,**/venv/**,**/.next/**,**/.svelte-kit/**,**/.turbo/**,**/*.png,**/*.jpg,**/*.pdf,**/*.zip,**/*.mp4,**/*.bin"',
-  --   '-e INCLUDE_GLOBS="**/*.py,**/*.ts,**/*.tsx,**/*.js,**/*.lua,**/*.go,**/*.rs,**/*.md,**/*.json,**/*.toml,**/*.yml,**/*.yaml"',
-  --   '-e TOP_K=10',
-  --   '-e CHUNK_SIZE=700',
-  --   '-e CHUNK_OVERLAP=80',
-  --   '-e OPENAI_API_KEY=' .. (os.getenv 'OPENAI_API_KEY' or ''),
-  -- }, ' '),
 }
