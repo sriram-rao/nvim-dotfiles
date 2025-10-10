@@ -12,7 +12,7 @@ return {
       auto_save_before_apply = true,
       enable_inline_diff = true,
     },
-    provider = 'ollama',
+    provider = 'openai',
     mode = 'agentic',
     providers = require 'sriramrao.plugins.complete.avante.providers',
     web_search_engine = {
@@ -66,27 +66,6 @@ return {
     setup.setup_rag_debug()
     setup.setup_provider_switcher()
 
-    -- Auto-start RAG service when nvim starts
-    vim.api.nvim_create_autocmd('VimEnter', {
-      callback = function()
-        local rag_service = require 'avante.rag_service'
-        if opts.rag_service and opts.rag_service.enabled then
-          rag_service.launch_rag_service(function()
-            vim.notify('[Avante RAG] Service started', vim.log.levels.INFO)
-          end)
-        end
-      end,
-    })
-
-    -- Auto-stop RAG service when nvim exits
-    vim.api.nvim_create_autocmd('VimLeavePre', {
-      callback = function()
-        local rag_service = require 'avante.rag_service'
-        if opts.rag_service and opts.rag_service.enabled then
-          rag_service.stop_rag_service()
-        end
-      end,
-    })
   end,
   dependencies = {
     'nvim-lua/plenary.nvim',

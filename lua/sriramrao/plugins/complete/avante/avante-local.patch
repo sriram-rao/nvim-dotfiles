@@ -1,0 +1,72 @@
+From abcdef1234567890 Mon Sep 17 00:00:00 2001
+Subject: [PATCH] Local tweaks: add rag_search notifications and fix RAG runner scripts
+
+---
+ lua/avante/llm_tools/init.lua | 11 +++++++++++
+ py/rag-service/run.sh        |  2 +-
+ py/rag-service/shell.nix     |  2 +-
+ 3 files changed, 13 insertions(+), 2 deletions(-)
+
+---
+diff --git a/lua/avante/llm_tools/init.lua b/lua/avante/llm_tools/init.lua
+index 0000000..1111111 100644
+--- a/lua/avante/llm_tools/init.lua
++++ b/lua/avante/llm_tools/init.lua
+@@ -525,6 +525,9 @@ function M.rag_search(input, opts)
+   if not on_complete then return nil, "on_complete not provided" end
+   if not Config.rag_service.enabled then return nil, "Rag service is not enabled" end
+   if not input.query then return nil, "No query provided" end
++  vim.schedule(function()
++    vim.notify("[rag_search] input: " .. vim.inspect(input), vim.log.levels.INFO)
++  end)
+   if on_log then on_log("query: " .. input.query) end
+   local root = Utils.get_project_root()
+   local uri = "file://" .. root
+@@ -533,6 +536,14 @@ function M.rag_search(input, opts)
+     uri,
+     input.query,
+     vim.schedule_wrap(function(resp, err)
++      vim.schedule(function()
++        if err then
++          vim.notify("[rag_search] error: " .. tostring(err), vim.log.levels.WARN)
++        else
++          local ok, encoded = pcall(vim.json.encode, resp)
++          vim.notify("[rag_search] response: " .. (ok and encoded or vim.inspect(resp)), vim.log.levels.INFO)
++        end
++      end)
+       if err then
+         on_complete(nil, err)
+         return
+         end)
+@@ -542,3 +553,4 @@ function M.rag_search(input, opts)
+       on_complete(vim.json.encode(resp), nil)
+     end)
+   )
+ end
++
+Diff --git a/py/rag-service/run.sh b/py/rag-service/run.sh
+index 2222222..3333333 100755
+--- a/py/rag-service/run.sh
++++ b/py/rag-service/run.sh
+@@ -9,7 +9,7 @@ fi
+ mkdir -p "$TARGET_DIR"
+ 
+ # Copy the required files to the target directory
+-cp -r src/ "$TARGET_DIR"
++cp -r src "$TARGET_DIR"
+ cp requirements.txt "$TARGET_DIR"
+ cp shell.nix "$TARGET_DIR"
+ 
+Diff --git a/py/rag-service/shell.nix b/py/rag-service/shell.nix
+index 4444444..5555555 100755
+--- a/py/rag-service/shell.nix
++++ b/py/rag-service/shell.nix
+@@ -38,7 +38,7 @@ in pkgs.mkShell {
+       echo "Using existing virtual environment"  tee -a "${logFile}"
+     fi
+ 
+-    run_and_log source ".venv/bin/activate"
++    run_and_log "source .venv/bin/activate"
+ 
+     run_and_log "uv pip install -r requirements.txt"
+ 

@@ -9,6 +9,7 @@ Coding:
 - Output only the minimal working snippet.
 - Keep functions short, modular, and focused.
 - Explanations: 1–3 sentences max.
+- Use `rag_search` for repo knowledge; keep queries to five words or fewer.
 - No redundant comments or boilerplate.
 - Show alternatives compactly if needed.
 
