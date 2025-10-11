@@ -59,11 +59,58 @@ return {
     opts = {
       log_level = 'TRACE',
     },
+    extensions = {
+      mcphub = {
+        callback = 'mcphub.extensions.codecompanion',
+        opts = {
+          make_vars = true,
+          make_slash_commands = true,
+          show_result_in_chat = true,
+        },
+      },
+      vectorcode = {
+        opts = {
+          tool_group = {
+            enabled = true,
+            extras = {},
+            collapse = false,
+          },
+          tool_opts = {
+            ['*'] = {}, -- Default settings for all tools
+            ls = {},
+            vectorise = {},
+            query = {
+              max_num = { chunk = -1, document = -1 },
+              default_num = { chunk = 50, document = 10 },
+              include_stderr = false,
+              use_lsp = false,
+              no_duplicate = true,
+              chunk_mode = false,
+              summarise = {
+                enabled = false,
+                adapter = nil,
+                query_augmented = true,
+              },
+            },
+            files_ls = {},
+            files_rm = {},
+          },
+          prompt_library = {
+            -- Example: custom project-specific prompts
+            -- ['Neovim Tutor'] = {
+            --   project_root = vim.env.VIMRUNTIME,
+            --   file_patterns = { 'lua/**/**.lua', 'doc/**/**.txt' },
+            -- },
+          },
+        },
+      },
+    },
   },
   dependencies = {
     'nvim-lua/plenary.nvim',
     'nvim-treesitter/nvim-treesitter',
     'ravitemer/mcphub.nvim',
+    'Davidyz/VectorCode',
     {
       'OXY2DEV/markview.nvim',
       lazy = false,
@@ -83,32 +130,6 @@ return {
           source = diff.gen_source.none(),
         }
       end,
-    },
-  },
-  extensions = {
-    mcphub = {
-      callback = 'mcphub.extensions.codecompanion',
-      opts = {
-        make_vars = true,
-        make_slash_commands = true,
-        show_result_in_chat = true,
-      },
-    },
-    vectorcode = {
-      opts = {
-        tool_group = {
-          enabled = true,
-          extras = {},
-          collapse = false,
-        },
-        tool_opts = {
-          query = {
-            max_num = { chunk = -1, document = -1 },
-            default_num = { chunk = 50, document = 10 },
-            no_duplicate = true,
-          },
-        },
-      },
     },
   },
 }
