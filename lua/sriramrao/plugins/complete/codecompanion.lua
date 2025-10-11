@@ -26,6 +26,29 @@ return {
     require('codecompanion').setup(opts)
   end,
   opts = {
+    adapters = {
+      anthropic = function()
+        return require('codecompanion.adapters').extend('anthropic', {
+          schema = {
+            model = {
+              default = 'claude-sonnet-4-5-20250929',
+            },
+          },
+        })
+      end,
+      ollama = function()
+        return require('codecompanion.adapters').extend('ollama', {
+          schema = {
+            model = {
+              default = 'llama3.1:8b',
+            },
+            num_ctx = {
+              default = 16384,
+            },
+          },
+        })
+      end,
+    },
     strategies = {
       chat = {
         adapter = 'openai',
