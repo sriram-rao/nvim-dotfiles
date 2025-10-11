@@ -240,6 +240,19 @@ return {
       },
     }
 
+    -- VectorCode integration
+    local VectorCode = nil
+    local ok, vectorcode = pcall(require, 'vectorcode.integrations')
+    if ok then
+      VectorCode = vectorcode.heirline {
+        show_job_count = true,
+        component_opts = {
+          hl = { bg = BoxBG, fg = '#CBE0F0' },
+          update = { 'User', 'BufEnter' },
+        },
+      }
+    end
+
     h.setup {
       statusline = {
         Space,
@@ -253,6 +266,8 @@ return {
         Space,
         Filetype,
         Space,
+        VectorCode and VectorCode or {},
+        VectorCode and Space or {},
         CodeCompanionCurrentContext,
         Space,
         CodeCompanionStats,

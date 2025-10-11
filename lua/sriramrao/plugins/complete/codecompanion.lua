@@ -94,5 +94,21 @@ return {
         show_result_in_chat = true,
       },
     },
+    vectorcode = {
+      opts = {
+        tool_group = {
+          enabled = true,
+          extras = {},
+          collapse = false,
+        },
+        tool_opts = {
+          query = {
+            max_num = { chunk = -1, document = -1 },
+            default_num = { chunk = 50, document = 10 },
+            no_duplicate = true,
+          },
+        },
+      },
+    },
   },
 }
