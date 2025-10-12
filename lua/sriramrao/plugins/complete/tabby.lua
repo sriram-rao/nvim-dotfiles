@@ -1,12 +1,15 @@
 return {
   'TabbyML/vim-tabby',
-  event = 'InsertEnter',
-  config = function()
-    -- Server endpoint is configured in ~/.tabby-client/agent/config.toml
+  enabled = true,
+  lazy = false, -- Load immediately so LSP can start
+  priority = 100, -- Load early
+  init = function()
+    -- Set config before plugin loads
     vim.g.tabby_agent_start_command = { 'npx', 'tabby-agent', '--stdio' }
-
-    -- Optional: Configure keymaps (changed to avoid conflict with nvim-cmp)
     vim.g.tabby_keybinding_accept = '<C-y>' -- Ctrl+y to accept Tabby
     vim.g.tabby_keybinding_trigger_or_dismiss = '<C-\\>'
+
+    -- Disable automatic inline completion (we'll use cmp instead)
+    vim.g.tabby_inline_completion_trigger = 'manual'
   end,
 }
