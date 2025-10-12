@@ -14,6 +14,11 @@ return {
     'saadparwaiz1/cmp_luasnip', -- for autocompletion
     'rafamadriz/friendly-snippets', -- useful snippets
     'onsails/lspkind.nvim', -- vs-code like pictograms
+    {
+      'sriram-rao/cmp-tabby.nvim',
+      dependencies = { 'TabbyML/vim-tabby' },
+      config = true,
+    },
   },
   config = function()
     local cmp = require 'cmp'
@@ -22,9 +27,8 @@ return {
     -- loads vscode style snippets from installed plugins (e.g. friendly-snippets)
     require('luasnip.loaders.from_vscode').lazy_load()
 
-    -- Register custom Tabby source
-    local tabby_source = require('sriramrao.plugins.local.cmp-tabby-source')
-    cmp.register_source('cmp_tabby', tabby_source.new())
+    -- Setup Tabby source
+    require('cmp-tabby').setup()
 
     cmp.setup {
       completion = {
@@ -102,10 +106,10 @@ return {
             symbol_map = { Tabby = '' },
           }(entry, vim_item)
 
-          -- Then customize Tabby menu
+          -- Then customize Tabby menu and force snippet icon
           if entry.source.name == 'cmp_tabby' then
-            -- Don't override kind, just add to menu
-            vim_item.menu = '🐈 [Tabby]'
+            vim_item.kind = ' Snippet' -- Force snippet icon with proper formatting
+            vim_item.menu = '🐈 Tabby'
           end
           return vim_item
         end,
