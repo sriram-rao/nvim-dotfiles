@@ -1,19 +1,11 @@
 -- lua/recordline.lua
 local recording_icon = ' '
+local avante_statusline = require 'sriramrao.plugins.complete.avante.statusline'
 
 local function record_status() return recording_icon end
 
 -- Minimal provider-only indicator (with startup fallback)
-local function avante_provider()
-  local config = require 'avante.config'
-  local provider = config.acp_provider or config.provider or 'n/a'
-  local provider_config = (config.providers and config.providers[provider])
-    or { model = '' }
-  return '\u{f09d1} '
-    .. (
-      provider_config.display_name or (provider .. ' ' .. provider_config.model)
-    )
-end
+local function avante_provider() return avante_statusline.provider() end
 
 local rec_group = vim.api.nvim_create_augroup('Recordline', { clear = true })
 
@@ -39,6 +31,7 @@ vim.api.nvim_create_autocmd('RecordingLeave', {
 
 return {
   'nvim-lualine/lualine.nvim',
+  enabled = false,
   dependencies = { 'nvim-tree/nvim-web-devicons' },
   config = function()
     -- Use a single statusline across all windows/splits

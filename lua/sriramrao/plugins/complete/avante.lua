@@ -1,5 +1,6 @@
 return {
   'yetone/avante.nvim',
+  enabled = false,
   build = 'make',
   event = 'VeryLazy',
   version = false,
@@ -65,6 +66,19 @@ return {
     setup.setup_rag_resource()
     setup.setup_rag_debug()
     setup.setup_provider_switcher()
+    setup.setup_rag_controls()
+
+    -- Auto-start RAG service on nvim startup (safe for concurrent instances)
+    vim.api.nvim_create_autocmd('VimEnter', {
+      callback = function()
+        local rag_service = require 'avante.rag_service'
+        if opts.rag_service and opts.rag_service.enabled then
+          rag_service.launch_rag_service(function()
+            vim.notify('[Avante RAG] Service started', vim.log.levels.INFO)
+          end)
+        end
+      end,
+    })
 
   end,
   dependencies = {

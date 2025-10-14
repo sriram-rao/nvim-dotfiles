@@ -52,7 +52,7 @@ return {
   },
   ollama = {
     endpoint = 'http://localhost:11434',
-    model = 'hermes3:8b',
+    model = 'llama3.1:8b',
     timeout = 30000,
     model_names = {
       'gemma3:1b',

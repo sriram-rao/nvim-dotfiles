@@ -2,7 +2,6 @@ return {
   'neovim/nvim-lspconfig',
   event = { 'BufReadPre', 'BufNewFile' },
   dependencies = {
-    'hrsh7th/cmp-nvim-lsp',
     { 'antosha417/nvim-lsp-file-operations', config = true },
     { 'folke/neodev.nvim', opts = {} },
   },
@@ -13,8 +12,20 @@ return {
     -- import mason_lspconfig plugin
     local mason_lspconfig = require 'mason-lspconfig'
 
-    -- import cmp-nvim-lsp plugin
-    local cmp_nvim_lsp = require 'cmp_nvim_lsp'
+    -- Get LSP capabilities based on completion plugin
+    local function get_capabilities_blink()
+      local blink = require('blink.cmp')
+      return blink.get_lsp_capabilities()
+    end
+
+    local function get_capabilities_nvim_cmp()
+      local cmp_nvim_lsp = require('cmp_nvim_lsp')
+      return cmp_nvim_lsp.default_capabilities()
+    end
+
+    -- Switch between completion plugins here:
+    local capabilities = get_capabilities_blink()
+    -- local capabilities = get_capabilities_nvim_cmp()
 
     if not vim.lsp.util._offset_encoding_guard then
       local original_make_position_params = vim.lsp.util.make_position_params
@@ -121,8 +132,6 @@ return {
       end,
     })
 
-    -- used to enable autocompletion (assign to every lsp server config)
-    local capabilities = cmp_nvim_lsp.default_capabilities()
 
     -- Change the Diagnostic symbols in the sign column (gutter)
     -- (not in youtube nvim video)

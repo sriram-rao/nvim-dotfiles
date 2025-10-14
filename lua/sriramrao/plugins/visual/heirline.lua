@@ -49,27 +49,6 @@ return {
       end,
       update = { 'ModeChanged', 'BufEnter' },
     }
-    local File = {
-      {
-        provider = '  ',
-        hl = { bg = BoxBG },
-      },
-      {
-        provider = function()
-          local path = vim.fn.expand '%:~:.'
-          local parts = vim.split(path, '/', { plain = true })
-          if #parts > 2 then
-            return table.concat({ parts[#parts - 1], parts[#parts] }, '/')
-          end
-          return path
-        end,
-        hl = { fg = '#CBE0F0', bg = BoxBG, bold = true },
-      },
-      {
-        provider = '  ',
-        hl = { bg = BoxBG },
-      },
-    }
     local Align = { provider = '%=' }
     local Ruler = {
       provider = '  %l:%c %p%%  ',
@@ -131,13 +110,46 @@ return {
       update = { 'CursorMoved', 'BufEnter' },
     }
 
-    local Filetype = {
-      condition = function() return vim.bo.filetype ~= '' end,
-      provider = function() return '  ' .. vim.bo.filetype .. '  ' end,
-      hl = { bg = BoxBG, fg = '#CBE0F0' },
-      update = { 'FileType', 'BufEnter' },
-    }
+    local CodeCompanionProvider = {
+      condition = function() return vim.bo.filetype == 'codecompanion' end,
+      {
+        provider = function()
+          local ok, config = pcall(require, 'codecompanion.config')
+          if not ok or not config then return '  codecompanion  ' end
 
+          local adapter = config.strategies.chat.adapter or 'unknown'
+          local model = ''
+
+          -- Get model from adapter config (new API: adapters.http)
+          if
+            config.adapters
+            and config.adapters.http
+            and config.adapters.http[adapter]
+          then
+            local adapter_fn = config.adapters.http[adapter]
+            if type(adapter_fn) == 'function' then
+              local adapter_obj = adapter_fn()
+              if
+                adapter_obj
+                and adapter_obj.schema
+                and adapter_obj.schema.model
+              then
+                model = adapter_obj.schema.model.default or ''
+              end
+            end
+          end
+
+          if model ~= '' then
+            return '  ' .. adapter .. ' (' .. model .. ')  '
+          else
+            return '  ' .. adapter .. '  '
+          end
+        end,
+        hl = { bg = BoxBG, fg = '#CBE0F0' },
+        update = { 'FileType', 'BufEnter' },
+      },
+      Space,
+    }
 
     local IsCodeCompanion = function()
       return package.loaded.codecompanion -- and vim.bo.filetype == 'codecompanion'
@@ -154,40 +166,44 @@ return {
           and vim.api.nvim_buf_is_valid(_G.codecompanion_current_context)
           and self.enabled
       end,
-      provider = function()
-        local bufname = vim.fn.fnamemodify(
-          vim.api.nvim_buf_get_name(_G.codecompanion_current_context),
-          ':t'
-        )
+      {
+        provider = function()
+          local bufname = vim.fn.fnamemodify(
+            vim.api.nvim_buf_get_name(_G.codecompanion_current_context),
+            ':t'
+          )
 
-        -- Check if there are multiple contexts
-        local context_count = 0
-        if _G.codecompanion_contexts and type(_G.codecompanion_contexts) == 'table' then
-          for _ in pairs(_G.codecompanion_contexts) do
-            context_count = context_count + 1
+          -- Check if there are multiple contexts
+          local context_count = 0
+          if
+            _G.codecompanion_contexts
+            and type(_G.codecompanion_contexts) == 'table'
+          then
+            for _ in pairs(_G.codecompanion_contexts) do
+              context_count = context_count + 1
+            end
           end
-        end
 
-        local suffix = ''
-        if context_count > 1 then
-          suffix = ' +' .. (context_count - 1)
-        end
+          local suffix = ''
+          if context_count > 1 then suffix = ' +' .. (context_count - 1) end
 
-        return '[  ' .. bufname .. suffix .. ' ] '
-      end,
-      hl = { fg = '#B4D0E9', bg = BoxBG },
-      update = {
-        'User',
-        pattern = { 'CodeCompanionRequest*', 'CodeCompanionContextChanged' },
-        callback = vim.schedule_wrap(function(self, args)
-          if args.match == 'CodeCompanionRequestStarted' then
-            self.enabled = false
-          elseif args.match == 'CodeCompanionRequestFinished' then
-            self.enabled = true
-          end
-          vim.cmd 'redrawstatus'
-        end),
+          return ' ' .. bufname .. suffix .. ' '
+        end,
+        hl = { fg = '#B4D0E9', bg = BoxBG },
+        update = {
+          'User',
+          pattern = { 'CodeCompanionRequest*', 'CodeCompanionContextChanged' },
+          callback = vim.schedule_wrap(function(self, args)
+            if args.match == 'CodeCompanionRequestStarted' then
+              self.enabled = false
+            elseif args.match == 'CodeCompanionRequestFinished' then
+              self.enabled = true
+            end
+            vim.cmd 'redrawstatus'
+          end),
+        },
       },
+      Space,
     }
 
     local CodeCompanionStats = {
@@ -209,10 +225,6 @@ return {
             or (self.chat_values.cycles and self.chat_values.cycles >= 0)
         end,
         {
-          provider = '',
-          hl = { fg = SL, bg = NL },
-        },
-        {
           provider = function(self)
             local parts = {}
             if self.chat_values.tokens and self.chat_values.tokens >= 0 then
@@ -221,9 +233,9 @@ return {
             if self.chat_values.cycles and self.chat_values.cycles >= 0 then
               table.insert(parts, '  ' .. self.chat_values.cycles)
             end
-            return ' ' .. table.concat(parts, ' ') .. ' '
+            return '  ' .. table.concat(parts, ' ') .. '  '
           end,
-          hl = { fg = 'gray', bg = SL },
+          hl = { fg = '#CBE0F0', bg = BoxBG },
           update = {
             'User',
             pattern = {
@@ -233,10 +245,7 @@ return {
             callback = vim.schedule_wrap(function() vim.cmd 'redrawstatus' end),
           },
         },
-        {
-          provider = '',
-          hl = { fg = SL, bg = NL },
-        },
+        Space,
       },
     }
 
@@ -244,11 +253,14 @@ return {
     local VectorCode = nil
     local ok, vectorcode = pcall(require, 'vectorcode.integrations')
     if ok then
-      VectorCode = vectorcode.heirline {
-        show_job_count = true,
-        component_opts = {
-          hl = { bg = BoxBG, fg = '#CBE0F0' },
-          update = { 'User', 'BufEnter' },
+      VectorCode = {
+        vectorcode.heirline {
+          show_job_count = true,
+          component_opts = {
+            hl = { bg = BoxBG, fg = '#CBE0F0' },
+            update = { 'User', 'BufEnter' },
+          },
+          Space,
         },
       }
     end
@@ -258,22 +270,14 @@ return {
         Space,
         Mode,
         Space,
-        File,
-        Space,
+        { Git, Space },
         Aerial,
         Align,
-        Git,
-        Space,
-        Filetype,
-        Space,
-        VectorCode and VectorCode or {},
-        VectorCode and Space or {},
+        VectorCode,
+        CodeCompanionProvider,
         CodeCompanionCurrentContext,
-        Space,
         CodeCompanionStats,
-        Space,
-        Ruler,
-        Space,
+        { Ruler, Space },
       },
     }
   end,

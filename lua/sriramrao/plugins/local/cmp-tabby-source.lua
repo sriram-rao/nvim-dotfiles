@@ -6,9 +6,12 @@ function source.new()
 end
 
 function source:is_available()
+  -- Always return true for testing
+  print("cmp_tabby is_available called, returning TRUE")
+  return true
   -- Check if Tabby LSP client is running
-  local clients = vim.lsp.get_clients({ name = 'tabby' })
-  return #clients > 0
+  -- local clients = vim.lsp.get_clients({ name = 'tabby' })
+  -- return #clients > 0
 end
 
 function source:get_debug_name()
@@ -20,13 +23,17 @@ function source:get_keyword_pattern()
 end
 
 function source:complete(request, callback)
+  print("========== TABBY SOURCE COMPLETE CALLED ==========")
   -- Get the Tabby LSP client
   local client = vim.lsp.get_clients({ name = 'tabby' })[1]
+  print("Tabby client found:", client ~= nil)
 
   if not client then
     callback({ items = {}, isIncomplete = false })
     return
   end
+
+  local cmp = require('cmp')
 
   -- Prepare the inline completion request
   local params = vim.lsp.util.make_position_params(0) -- 0 for current buffer
@@ -61,14 +68,17 @@ function source:complete(request, callback)
         end
 
         table.insert(completion_items, {
-          label = label,
-          kind = vim.lsp.protocol.CompletionItemKind.Snippet,
-          insertText = insert_text,
+          word = insert_text,
+          label = "XXXXXXX " .. label, -- OBVIOUS MARKER
+          kind = 15, -- Hardcode Snippet kind
+          data = {
+            snippet_text = insert_text
+          },
           documentation = {
             kind = 'markdown',
             value = '```\n' .. insert_text .. '\n```\n\n---\n\n**Tabby AI**'
           },
-          sortText = '0', -- Sort at top (lower sorts first)
+          sortText = '0',
           priority = 1000,
         })
       end
