@@ -4,7 +4,7 @@ return {
     {
       '<leader>eo',
       '<cmd>AerialToggle!<CR>',
-      desc = 'Aerial toggle',
+      desc = 'explorer (aerial): toggle outline',
     },
     {
       '<leader>ep',
@@ -16,7 +16,7 @@ return {
           },
         }
       end,
-      desc = 'Aerial picker',
+      desc = 'explorer (aerial): picker',
     },
   },
   -- Optional dependencies

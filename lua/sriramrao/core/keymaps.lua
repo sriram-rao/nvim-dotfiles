@@ -5,55 +5,55 @@ local keymap = vim.keymap
 
 keymap.set('n', '<leader>nh', ':nohl<CR>', { desc = 'Clear search highlights' })
 
-keymap.set('n', '<leader>wv', '<C-w>v', { desc = 'Split window vertically' })
-keymap.set('n', '<leader>wh', '<C-w>s', { desc = 'Split window horizontally' })
-keymap.set('n', '<leader>ws', '<C-w>=', { desc = 'Make splits equal size' })
+keymap.set('n', '<leader>wv', '<C-w>v', { desc = 'window: split vertically' })
+keymap.set('n', '<leader>wh', '<C-w>s', { desc = 'window: split horizontally' })
+keymap.set('n', '<leader>ws', '<C-w>=', { desc = 'window: make splits equal size' })
 keymap.set(
   'n',
   '<leader>wx',
   '<cmd>close<CR>',
-  { desc = 'Close current split' }
+  { desc = 'window: close current split' }
 )
 
-keymap.set('n', '<leader>to', '<cmd>tabnew<CR>', { desc = 'Open new tab' })
+keymap.set('n', '<leader>to', '<cmd>tabnew<CR>', { desc = 'tab: open new' })
 keymap.set(
   'n',
   '<leader>tx',
   '<cmd>tabclose<CR>',
-  { desc = 'Close current tab' }
+  { desc = 'tab: close current' }
 )
-keymap.set('n', '<leader>tn', '<cmd>tabn<CR>', { desc = 'Go to next tab' })
-keymap.set('n', '<leader>tp', '<cmd>tabp<CR>', { desc = 'Go to previous tab' })
+keymap.set('n', '<leader>tn', '<cmd>tabn<CR>', { desc = 'tab: go to next' })
+keymap.set('n', '<leader>tp', '<cmd>tabp<CR>', { desc = 'tab: go to previous' })
 keymap.set(
   'n',
   '<leader>tf',
   '<cmd>tabnew %<CR>',
-  { desc = 'Open current buffer (e.g. file) in a new tab' }
+  { desc = 'tab: open current buffer in new tab' }
 )
 
 keymap.set(
   'n',
   '<leader>wh',
   '<C-w><C-h>',
-  { desc = 'Move focus to the left window' }
+  { desc = 'window: move focus left' }
 )
 keymap.set(
   'n',
   '<leader>wi',
   '<C-w><C-l>',
-  { desc = 'Move focus to the right window' }
+  { desc = 'window: move focus right' }
 )
 keymap.set(
   'n',
   '<leader>wn',
   '<C-w><C-j>',
-  { desc = 'Move focus to the lower window' }
+  { desc = 'window: move focus down' }
 )
 keymap.set(
   'n',
   '<leader>we',
   '<C-w><C-k>',
-  { desc = 'Move focus to the upper window' }
+  { desc = 'window: move focus up' }
 )
 
 function _G.set_terminal_keymaps()

@@ -55,16 +55,13 @@ return {
     model = 'llama3.1:8b',
     timeout = 30000,
     model_names = {
+      'deepseek-r1:1.5b',
+      'deepseek-r1:7b',
       'gemma3:1b',
       'gemma3:4b',
-      'gpt-oss:20b-cloud',
       'gpt-oss:120b-cloud',
-      'hermes3:3b',
-      'hermes3:8b',
       'llama3.1:8b',
-      'llama3.2:3b',
       'qwen2.5-coder:1.5b',
-      'starcoder2:3b',
     },
     extra_request_body = {
       options = {

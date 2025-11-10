@@ -22,7 +22,7 @@ return {
   },
 
   ['codex'] = {
-    command = 'codex-acp',
+    command = 'npx --yes @zed-industries/codex-acp',
     args = { '--no-stream' },
     env = {
       NODE_NO_WARNINGS = '1',
